@@ -32,8 +32,12 @@ public class BubbleShooter : MonoBehaviour
         }
         
         trajectoryLine.material = new Material(Shader.Find("Sprites/Default"));
-        trajectoryLine.color = Color.white;
-        trajectoryLine.width = 0.05f;
+        // Corrección: usar startColor/endColor en lugar de color
+        trajectoryLine.startColor = Color.white;
+        trajectoryLine.endColor = Color.white;
+        // Corrección: usar startWidth/endWidth en lugar de width
+        trajectoryLine.startWidth = 0.05f;
+        trajectoryLine.endWidth = 0.05f;
         trajectoryLine.enabled = false;
     }
     
@@ -141,7 +145,9 @@ public class BubbleShooter : MonoBehaviour
         for (int i = 0; i < trajectoryPoints; i++)
         {
             float time = i * trajectoryTimeStep;
-            points[i] = startPos + velocity * time + 0.5f * Physics2D.gravity * time * time;
+            // Corrección: convertir Physics2D.gravity a Vector3
+            Vector3 gravity = new Vector3(Physics2D.gravity.x, Physics2D.gravity.y, 0);
+            points[i] = startPos + velocity * time + 0.5f * gravity * time * time;
         }
         
         trajectoryLine.positionCount = trajectoryPoints;

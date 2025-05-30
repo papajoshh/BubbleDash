@@ -10,7 +10,6 @@ public class PlayerController : MonoBehaviour
     public Vector2 verticalBounds = new Vector2(-4f, 4f);
     public float forwardBoundary = 20f;
     
-    [Header("Game State")]
     public bool isAlive { get; private set; } = true;
     
     private Vector3 startPosition;

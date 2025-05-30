@@ -4,7 +4,6 @@ public class ScoreManager : MonoBehaviour
 {
     public static ScoreManager Instance { get; private set; }
     
-    [Header("Score Settings")]
     public int currentScore { get; private set; }
     public int highScore { get; private set; }
     public int distanceScore { get; private set; }
