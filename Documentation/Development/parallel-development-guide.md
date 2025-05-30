@@ -14,7 +14,7 @@ Maximizar eficiencia desarrollando en paralelo: Claude implementa código, Human
 5. ⏳ GameManager (estados del juego)
 6. ⏳ ScoreManager y UI básica
 
-### 👨‍💻 HUMANO (Track de Assets y Setup)
+### 👨‍💻 HUMANO (Track de Assets y Setup) 
 **AHORA MISMO - Paralelo**:
 1. 🔄 Configurar Unity para Android
 2. 🔄 Descargar y preparar assets visuales
