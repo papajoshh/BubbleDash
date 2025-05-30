@@ -2,7 +2,6 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
-.utmp/
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -10,7 +9,6 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
-*.log
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
@@ -61,7 +59,6 @@ sysinfo.txt
 *.apk
 *.aab
 *.unitypackage
-*.unitypackage.meta
 *.app
 
 # Crashlytics generated file
@@ -73,3 +70,80 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Exceptions for version control
+# You might want to uncomment these if you want to version control specific files
+# !*.dll
+# !*.obj
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db.meta
+ehthumbs.db
+ehthumbs_vista.db
+
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# VS Code
+.vscode/
+
+# JetBrains Rider
+.idea/
+*.iml
+
+# vim
+*.swp
+*.swo
+*~
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# PlasticSCM
+.plastic/
+
+# Unity Package Manager
+/[Pp]ackages/packages-lock.json
+
+# Unity Generated
+/[Tt]emp/
+/[Ll]ibrary/
+/[Ll]ogs/
+/[Uu]serSettings/
+/[Bb]uild/
+/[Bb]uilds/
+
+# Never ignore DLLs in the FMOD subfolder.
+!/[Aa]ssets/**/FMODStudioCache.asset
+!/[Aa]ssets/**/FMODStudioSettings.xml
+/[Aa]ssets/**/FMODStudioCache.asset.meta
+/[Aa]ssets/**/FMODStudioSettings.xml.meta
+/[Aa]ssets/Plugins/FMOD/Cache/*
+/[Aa]ssets/Plugins/FMOD/Cache.meta
+
+# TextMesh Pro
+/[Aa]ssets/TextMesh*Pro/
+
+# Ignore the auto-generated AOT compatibility dll.
+/[Aa]ssets/Plugins/Sirenix/Assemblies/AOT/*
+
+# Ignore build reports
+/[Aa]ssets/BuildReports/
+/[Aa]ssets/BuildReports.meta
+
+# Ignore the Jetbrains Rider's auto generated AOT compatibility dll.
+/[Aa]ssets/Plugins/Sirenix/Assemblies/AOT/*
+
+# Ignore the generated folder
+/[Aa]ssets/Generated/
+/[Aa]ssets/Generated.meta
