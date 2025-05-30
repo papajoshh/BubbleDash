@@ -13,9 +13,14 @@ public class BubbleShooter : MonoBehaviour
     public float trajectoryTimeStep = 0.1f;
     public LayerMask obstacleLayer = 1;
     
+    [Header("Bubble Queue")]
+    public BubbleColor nextBubbleColor;
+    public Transform nextBubbleDisplay;
+    
     private Camera mainCamera;
     private bool isAiming = false;
     private Vector2 aimDirection;
+    private bool canShoot = true;
     
     void Start()
     {
@@ -39,6 +44,9 @@ public class BubbleShooter : MonoBehaviour
         trajectoryLine.startWidth = 0.05f;
         trajectoryLine.endWidth = 0.05f;
         trajectoryLine.enabled = false;
+        
+        // Initialize with random bubble color
+        GenerateNextBubble();
     }
     
     void Update()
@@ -48,6 +56,8 @@ public class BubbleShooter : MonoBehaviour
     
     void HandleInput()
     {
+        if (!canShoot) return;
+        
         // Mouse/Touch input for aiming
         if (Input.GetMouseButtonDown(0))
         {
@@ -113,10 +123,19 @@ public class BubbleShooter : MonoBehaviour
     
     void Shoot()
     {
-        if (bubblePrefab == null || shootPoint == null) return;
+        if (bubblePrefab == null || shootPoint == null || !canShoot) return;
+        
+        canShoot = false;
         
         // Instantiate bubble
         GameObject bubble = Instantiate(bubblePrefab, shootPoint.position, Quaternion.identity);
+        
+        // Set bubble color
+        Bubble bubbleComponent = bubble.GetComponent<Bubble>();
+        if (bubbleComponent != null)
+        {
+            bubbleComponent.SetColor(nextBubbleColor);
+        }
         
         // Add physics
         Rigidbody2D bubbleRb = bubble.GetComponent<Rigidbody2D>();
@@ -134,6 +153,10 @@ public class BubbleShooter : MonoBehaviour
         {
             momentum.OnBubbleShot();
         }
+        
+        // Prepare next bubble
+        Invoke(nameof(EnableShooting), 0.5f);
+        GenerateNextBubble();
     }
     
     void ShowTrajectory()
@@ -161,5 +184,41 @@ public class BubbleShooter : MonoBehaviour
             return Input.GetTouch(0).position;
         }
         return Input.mousePosition;
+    }
+    
+    void GenerateNextBubble()
+    {
+        // Random next bubble color
+        nextBubbleColor = (BubbleColor)Random.Range(0, 4);
+        
+        // Update visual preview if exists
+        if (nextBubbleDisplay != null)
+        {
+            SpriteRenderer previewSprite = nextBubbleDisplay.GetComponent<SpriteRenderer>();
+            if (previewSprite != null)
+            {
+                // Set preview color
+                switch (nextBubbleColor)
+                {
+                    case BubbleColor.Red:
+                        previewSprite.color = Color.red;
+                        break;
+                    case BubbleColor.Blue:
+                        previewSprite.color = Color.blue;
+                        break;
+                    case BubbleColor.Green:
+                        previewSprite.color = Color.green;
+                        break;
+                    case BubbleColor.Yellow:
+                        previewSprite.color = Color.yellow;
+                        break;
+                }
+            }
+        }
+    }
+    
+    void EnableShooting()
+    {
+        canShoot = true;
     }
 }

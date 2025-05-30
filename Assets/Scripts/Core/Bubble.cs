@@ -11,18 +11,18 @@ public class Bubble : MonoBehaviour
     public float stopVelocityThreshold = 0.5f;
     
     [Header("Visual")]
-    public Renderer bubbleRenderer;
+    public SpriteRenderer bubbleRenderer;
     
     private Rigidbody2D rb;
     private bool hasCollided = false;
     private float lifetime = 0f;
     
-    // Color materials (assign these in Unity or load from Resources)
-    [Header("Materials")]
-    public Material redMaterial;
-    public Material blueMaterial;
-    public Material greenMaterial;
-    public Material yellowMaterial;
+    // Color sprites (assign these in Unity or load from Resources)
+    [Header("Sprites")]
+    public Sprite redBubbleSprite;
+    public Sprite blueBubbleSprite;
+    public Sprite greenBubbleSprite;
+    public Sprite yellowBubbleSprite;
     
     void Start()
     {
@@ -34,7 +34,7 @@ public class Bubble : MonoBehaviour
         
         if (bubbleRenderer == null)
         {
-            bubbleRenderer = GetComponent<Renderer>();
+            bubbleRenderer = GetComponent<SpriteRenderer>();
         }
         
         // Register with BubbleManager
@@ -138,34 +138,32 @@ public class Bubble : MonoBehaviour
     {
         if (bubbleRenderer == null) return;
         
-        Material materialToUse = null;
+        Sprite spriteToUse = null;
         
         switch (bubbleColor)
         {
             case BubbleColor.Red:
-                materialToUse = redMaterial;
+                spriteToUse = redBubbleSprite;
                 break;
             case BubbleColor.Blue:
-                materialToUse = blueMaterial;
+                spriteToUse = blueBubbleSprite;
                 break;
             case BubbleColor.Green:
-                materialToUse = greenMaterial;
+                spriteToUse = greenBubbleSprite;
                 break;
             case BubbleColor.Yellow:
-                materialToUse = yellowMaterial;
+                spriteToUse = yellowBubbleSprite;
                 break;
         }
         
-        if (materialToUse != null)
+        if (spriteToUse != null)
         {
-            bubbleRenderer.material = materialToUse;
+            bubbleRenderer.sprite = spriteToUse;
         }
         else
         {
-            // Fallback: create simple colored material
-            Material fallbackMat = new Material(Shader.Find("Standard"));
-            fallbackMat.color = GetColorFromEnum(bubbleColor);
-            bubbleRenderer.material = fallbackMat;
+            // Fallback: just set color tint
+            bubbleRenderer.color = GetColorFromEnum(bubbleColor);
         }
     }
     

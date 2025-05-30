@@ -35,6 +35,12 @@ public void OnGameOver()
 }
 ```
 
+**AdMob Integration IDs**:
+- **App ID**: ca-app-pub-8144713847135030
+- **Rewarded Video (Double Coins)**: ca-app-pub-8144713847135030/3740665346
+- **Interstitial (Game Over)**: ca-app-pub-8144713847135030/8801420338
+- **Banner (Menu)**: ca-app-pub-8144713847135030/2116576573
+
 **Frequency Cap**: Maximum 6 rewarded ads per hour
 **User Value**: Clear benefit communication before ad
 
