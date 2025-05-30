@@ -5,7 +5,8 @@ public class BubbleShooter : MonoBehaviour
     [Header("Shooting Settings")]
     public GameObject bubblePrefab;
     public Transform shootPoint;
-    public float shootForce = 10f;
+    public float shootForce = 25f; // Aumentado de 10 a 25
+    public float bubbleScale = 0.5f; // Escala para burbujas más pequeñas
     public LineRenderer trajectoryLine;
     
     [Header("Aiming")]
@@ -130,6 +131,9 @@ public class BubbleShooter : MonoBehaviour
         // Instantiate bubble
         GameObject bubble = Instantiate(bubblePrefab, shootPoint.position, Quaternion.identity);
         
+        // Apply scale to make bubble smaller
+        bubble.transform.localScale = Vector3.one * bubbleScale;
+        
         // Set bubble color
         Bubble bubbleComponent = bubble.GetComponent<Bubble>();
         if (bubbleComponent != null)
@@ -143,6 +147,11 @@ public class BubbleShooter : MonoBehaviour
         {
             bubbleRb = bubble.AddComponent<Rigidbody2D>();
         }
+        
+        // Configure physics for better shooting
+        bubbleRb.mass = 0.5f; // Lighter mass for better flight
+        bubbleRb.gravityScale = 0.8f; // Slightly less gravity
+        bubbleRb.drag = 0.5f; // Some air resistance
         
         // Apply force
         bubbleRb.AddForce(aimDirection * shootForce, ForceMode2D.Impulse);

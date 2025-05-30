@@ -10,15 +10,31 @@ public class PlayerController : MonoBehaviour
     public Vector2 verticalBounds = new Vector2(-4f, 4f);
     public float forwardBoundary = 20f;
     
+    [Header("Starting Position")]
+    public Vector3 fixedStartPosition = new Vector3(-7f, 0f, 0f);
+    public bool useFixedStartPosition = true;
+    
     public bool isAlive { get; private set; } = true;
     
     private Vector3 startPosition;
     
     void Start()
     {
-        startPosition = transform.position;
+        // Force starting position to ensure consistency between Editor and Build
+        if (useFixedStartPosition)
+        {
+            transform.position = fixedStartPosition;
+            startPosition = fixedStartPosition;
+        }
+        else
+        {
+            startPosition = transform.position;
+        }
+        
         currentSpeed = baseSpeed;
         isAlive = true;
+        
+        Debug.Log($"Player starting at position: {transform.position}");
     }
     
     void Update()
@@ -60,9 +76,20 @@ public class PlayerController : MonoBehaviour
     
     public void Restart()
     {
-        transform.position = startPosition;
+        // Always use the same starting position for consistency
+        if (useFixedStartPosition)
+        {
+            transform.position = fixedStartPosition;
+        }
+        else
+        {
+            transform.position = startPosition;
+        }
+        
         currentSpeed = baseSpeed;
         isAlive = true;
+        
+        Debug.Log($"Player restarted at position: {transform.position}");
     }
     
     void OnTriggerEnter2D(Collider2D other)
