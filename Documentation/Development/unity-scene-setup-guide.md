@@ -281,7 +281,21 @@
 2. **Transform**: Reset (Position 0,0,0)
 3. **Propósito**: Contendrá todos los elementos del mundo
 
-### 6.2 Crear Límites del Mundo (Paredes)
+### 6.2 Crear Material de Rebote (Physics Material 2D)
+
+#### Opción A - Usando Physics Material (Más Simple):
+1. **En Project**: Right-click → Create → 2D → Physics Material 2D
+2. **Renombrar**: "BouncyWall"
+3. **Configurar**:
+   ```
+   Friction: 0
+   Bounciness: 0.8
+   ```
+
+#### Opción B - Usando Script (Más Control):
+Usar el script WallBounce.cs que creamos
+
+### 6.3 Crear Límites del Mundo (Paredes)
 
 #### Pared Superior (Top Wall):
 1. **GameObject → Create Empty** → Renombrar: "TopWall"
@@ -295,6 +309,10 @@
 4. **Add Component → Physics 2D → Box Collider 2D**:
    - Size: (1, 1) - Se escalará con el transform
    - Is Trigger: NO
+5. **Add Component → WallBounce** (script):
+   - Bounciness: 0.8
+   - Bounce Horizontally: NO
+   - Bounce Vertically: YES
 
 #### Pared Inferior (Bottom Wall):
 1. **GameObject → Create Empty** → Renombrar: "BottomWall"
@@ -308,6 +326,10 @@
 4. **Add Component → Physics 2D → Box Collider 2D**:
    - Size: (1, 1)
    - Is Trigger: NO
+5. **Add Component → WallBounce** (script):
+   - Bounciness: 0.8
+   - Bounce Horizontally: NO
+   - Bounce Vertically: YES
 
 #### Pared Trasera (Back Wall) - OPCIONAL:
 1. **GameObject → Create Empty** → Renombrar: "BackWall"
