@@ -164,13 +164,14 @@ public class BubbleShooter : MonoBehaviour
             bubbleRb = bubble.AddComponent<Rigidbody2D>();
         }
         
-        // Configure physics for better shooting
-        bubbleRb.mass = 0.5f; // Lighter mass for better flight
-        bubbleRb.gravityScale = 0.8f; // Slightly less gravity
-        bubbleRb.drag = 0.5f; // Some air resistance
+        // Configure physics for linear movement (no gravity)
+        bubbleRb.mass = 0.5f;
+        bubbleRb.gravityScale = 0f; // NO GRAVITY - linear movement
+        bubbleRb.drag = 0f; // NO DRAG - constant velocity
+        bubbleRb.angularDrag = 0f; // No rotation drag
         
-        // Apply force
-        bubbleRb.AddForce(aimDirection * shootForce, ForceMode2D.Impulse);
+        // Set velocity directly for consistent speed
+        bubbleRb.velocity = aimDirection * shootForce;
         
         // Ignore collision with player
         if (playerCollider != null)
@@ -202,20 +203,13 @@ public class BubbleShooter : MonoBehaviour
     
     void ShowTrajectory()
     {
-        Vector3[] points = new Vector3[trajectoryPoints];
+        // Simple straight line trajectory (no gravity)
         Vector3 startPos = shootPoint.position;
-        Vector3 velocity = aimDirection * shootForce;
+        Vector3 endPos = startPos + (Vector3)(aimDirection * shootForce * 0.5f); // Show partial trajectory
         
-        for (int i = 0; i < trajectoryPoints; i++)
-        {
-            float time = i * trajectoryTimeStep;
-            // Corrección: convertir Physics2D.gravity a Vector3
-            Vector3 gravity = new Vector3(Physics2D.gravity.x, Physics2D.gravity.y, 0);
-            points[i] = startPos + velocity * time + 0.5f * gravity * time * time;
-        }
-        
-        trajectoryLine.positionCount = trajectoryPoints;
-        trajectoryLine.SetPositions(points);
+        trajectoryLine.positionCount = 2;
+        trajectoryLine.SetPosition(0, startPos);
+        trajectoryLine.SetPosition(1, endPos);
     }
     
     Vector3 GetInputPosition()

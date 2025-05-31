@@ -104,6 +104,12 @@ public class SimpleSoundManager : MonoBehaviour
         PlaySound(bubblePop, 1f, "pop");
     }
     
+    public void PlayBubbleMiss()
+    {
+        // Soft puff sound for misses - using buttonClick as placeholder or no sound
+        PlaySound(buttonClick, 0.3f);
+    }
+    
     public void PlayCoinCollect()
     {
         PlaySound(coinCollect, 1f);

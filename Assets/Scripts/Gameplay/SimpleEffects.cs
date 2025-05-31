@@ -271,6 +271,50 @@ public class SimpleEffects : MonoBehaviour
         Destroy(scoreObj);
     }
     
+    // Miss effect - subtle puff for wrong color hits
+    public void PlayMissEffect(Vector3 position)
+    {
+        GameObject missEffect = new GameObject("MissEffect");
+        missEffect.transform.position = position;
+        
+        // Add sprite renderer
+        SpriteRenderer sr = missEffect.AddComponent<SpriteRenderer>();
+        sr.sprite = GetCircleSprite();
+        sr.color = new Color(0.8f, 0.8f, 0.8f, 0.5f); // Light gray, semi-transparent
+        sr.sortingOrder = 5;
+        
+        // Start the miss animation (smaller, quicker fade)
+        StartCoroutine(MissAnimation(missEffect));
+    }
+    
+    IEnumerator MissAnimation(GameObject missObject)
+    {
+        Transform trans = missObject.transform;
+        SpriteRenderer sr = missObject.GetComponent<SpriteRenderer>();
+        
+        float elapsed = 0f;
+        float duration = 0.2f; // Shorter than pop
+        Vector3 originalScale = Vector3.one * 0.3f; // Smaller effect
+        
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float progress = elapsed / duration;
+            
+            // Just fade out, minimal scale change
+            trans.localScale = originalScale * (1f + progress * 0.2f);
+            
+            // Fade alpha quickly
+            Color color = sr.color;
+            color.a = 0.5f * (1f - progress);
+            sr.color = color;
+            
+            yield return null;
+        }
+        
+        Destroy(missObject);
+    }
+    
     // Helper to get/create a circle sprite
     Sprite GetCircleSprite()
     {

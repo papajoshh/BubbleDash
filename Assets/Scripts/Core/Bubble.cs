@@ -115,14 +115,17 @@ public class Bubble : MonoBehaviour
     
     void OnWallCollision()
     {
-        // In endless runner, bubbles bounce off walls but don't stick
-        // WallBounce component handles the actual bouncing
-        
-        // Just mark that we've hit something
+        // In new design, bubbles are destroyed when hitting walls
         hasCollided = true;
         
-        // Don't reduce velocity here - let WallBounce handle it
-        // This prevents double velocity reduction
+        // Create small puff effect
+        if (SimpleEffects.Instance != null)
+        {
+            SimpleEffects.Instance.PlayMissEffect(transform.position);
+        }
+        
+        // Destroy the bubble
+        DestroyBubble();
     }
     
     void OnBubbleSettled()

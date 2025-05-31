@@ -2050,7 +2050,6 @@ GameObject:
   m_Component:
   - component: {fileID: 693749788}
   - component: {fileID: 693749789}
-  - component: {fileID: 693749790}
   - component: {fileID: 693749791}
   m_Layer: 0
   m_Name: BottomWall
@@ -2119,21 +2118,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &693749790
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 693749787}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e628912f68ede3a4e956bdeaba6c2edc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bounciness: 0.8
-  bounceHorizontally: 0
-  bounceVertically: 1
 --- !u!114 &693749791
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5393,7 +5377,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1584388494}
   - component: {fileID: 1584388495}
-  - component: {fileID: 1584388496}
   - component: {fileID: 1584388497}
   m_Layer: 0
   m_Name: TopWall
@@ -5462,21 +5445,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &1584388496
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1584388493}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e628912f68ede3a4e956bdeaba6c2edc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bounciness: 0.8
-  bounceHorizontally: 0
-  bounceVertically: 1
 --- !u!114 &1584388497
 MonoBehaviour:
   m_ObjectHideFlags: 0
