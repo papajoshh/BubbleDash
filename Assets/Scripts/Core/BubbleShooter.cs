@@ -91,6 +91,12 @@ public class BubbleShooter : MonoBehaviour
     {
         if (!canShoot) return;
         
+        // Only allow shooting if game is playing
+        if (GameManager.Instance != null && GameManager.Instance.GetGameState() != GameState.Playing)
+        {
+            return;
+        }
+        
         // Mouse/Touch input for aiming
         if (Input.GetMouseButtonDown(0))
         {

@@ -44,6 +44,12 @@ public class PlayerController : MonoBehaviour
     {
         if (!isAlive) return;
         
+        // Only move if game is actually playing
+        if (GameManager.Instance != null && GameManager.Instance.GetGameState() != GameState.Playing)
+        {
+            return;
+        }
+        
         MoveForward();
         ClampVerticalPosition();
     }

@@ -52,10 +52,16 @@ public class GameManager : MonoBehaviour
         if (UpgradeSystem.Instance != null)
             UpgradeSystem.Instance.ApplyStartingUpgrades();
         
-        // Auto start if enabled
+        // Auto start if enabled, otherwise stay in menu
         if (autoStartGame)
         {
             StartGame();
+        }
+        else
+        {
+            currentState = GameState.Menu;
+            Time.timeScale = 1f; // Ensure time isn't paused in menu
+            Debug.Log("Game Manager in Menu state - use StartGame() to begin");
         }
     }
     
@@ -251,6 +257,7 @@ public class GameManager : MonoBehaviour
     public bool IsPlaying() => currentState == GameState.Playing;
     public bool IsPaused() => currentState == GameState.Paused;
     public bool IsGameOver() => currentState == GameState.GameOver;
+    public GameState GetGameState() => currentState;
 }
 
 public enum GameState
