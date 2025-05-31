@@ -1,91 +1,186 @@
 using UnityEngine;
+using DG.Tweening;
 
 public class Coin : MonoBehaviour
 {
     [Header("Coin Settings")]
-    public int value = 1;
-    public float rotationSpeed = 100f;
+    public int coinValue = 1;
+    public float rotationSpeed = 180f; // Degrees per second
+    public float bobSpeed = 2f;
+    public float bobHeight = 0.2f;
     
-    [Header("Collection Effects")]
-    public float collectAnimationDuration = 0.5f;
-    public AnimationCurve collectCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [Header("Collection")]
+    public float magnetRange = 3f;
+    public float magnetSpeed = 8f;
+    public bool canBeCollected = true;
     
-    private bool isCollected = false;
-    private float collectTime = 0f;
-    private Vector3 originalScale;
+    private float effectiveMagnetRange;
+    
+    [Header("Lifetime")]
+    public float lifetime = 20f; // Destroy after X seconds if not collected
+    
+    private Transform player;
+    private Vector3 startPosition;
+    private bool isBeingCollected = false;
+    private float currentLifetime = 0f;
     
     void Start()
     {
-        originalScale = transform.localScale;
+        startPosition = transform.position;
+        
+        // Find player
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+        {
+            player = playerObj.transform;
+        }
+        else
+        {
+            PlayerController pc = FindObjectOfType<PlayerController>();
+            if (pc != null)
+            {
+                player = pc.transform;
+            }
+        }
+        
+        // Add collider if not present
+        if (GetComponent<Collider2D>() == null)
+        {
+            CircleCollider2D col = gameObject.AddComponent<CircleCollider2D>();
+            col.isTrigger = true;
+            col.radius = 0.3f;
+        }
+        
+        // Apply magnet upgrade bonus
+        float magnetBonus = PlayerPrefs.GetFloat("CoinMagnetBonus", 0f);
+        effectiveMagnetRange = magnetRange + magnetBonus;
+        
+        // Start animations
+        StartAnimations();
+    }
+    
+    void StartAnimations()
+    {
+        // Rotation animation using DOTween
+        transform.DORotate(new Vector3(0, 360, 0), 360f / rotationSpeed, RotateMode.LocalAxisAdd)
+            .SetLoops(-1, LoopType.Restart)
+            .SetEase(Ease.Linear);
+        
+        // Bobbing animation using DOTween
+        transform.DOMoveY(startPosition.y + bobHeight, 1f / bobSpeed)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetEase(Ease.InOutSine);
+        
+        // Initial spawn animation
+        transform.localScale = Vector3.zero;
+        transform.DOScale(1f, 0.3f).SetEase(Ease.OutBack);
     }
     
     void Update()
     {
-        if (!isCollected)
-        {
-            // Rotate the coin
-            transform.Rotate(0f, 0f, rotationSpeed * Time.deltaTime);
-        }
-        else
-        {
-            // Collection animation
-            collectTime += Time.deltaTime;
-            float progress = collectTime / collectAnimationDuration;
-            
-            if (progress >= 1f)
-            {
-                // Destroy after animation
-                Destroy(gameObject);
-            }
-            else
-            {
-                // Scale up and fade
-                float curveValue = collectCurve.Evaluate(progress);
-                transform.localScale = originalScale * (1f + curveValue);
-                
-                // Optional: Move up
-                transform.position += Vector3.up * Time.deltaTime * 2f;
-            }
-        }
-    }
-    
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        if (isCollected) return;
+        if (!canBeCollected) return;
         
-        // Check if player collected the coin
-        if (other.CompareTag("Player"))
+        // Lifetime check
+        currentLifetime += Time.deltaTime;
+        if (currentLifetime > lifetime)
         {
-            CollectCoin();
+            // Fade out before destroying
+            transform.DOScale(0f, 0.3f).SetEase(Ease.InBack)
+                .OnComplete(() => Destroy(gameObject));
+            canBeCollected = false;
+            return;
+        }
+        
+        // Magnetic attraction to player with DOTween
+        if (player != null && !isBeingCollected)
+        {
+            float distance = Vector2.Distance(transform.position, player.position);
+            
+            if (distance < effectiveMagnetRange)
+            {
+                isBeingCollected = true;
+                Debug.Log("Magnet activated - isBeingCollected set to true");
+                
+                // Kill existing animations
+                transform.DOKill();
+                
+                // Magnetic collection animation
+                float magnetTime = distance / (magnetSpeed * 2f);
+                magnetTime = Mathf.Clamp(magnetTime, 0.2f, 0.5f);
+                
+                transform.DOMove(player.position, magnetTime)
+                    .SetEase(Ease.InExpo)
+                    .OnComplete(CollectCoin);
+                
+                // Scale effect during collection
+                transform.DOScale(0.7f, magnetTime * 0.5f).SetEase(Ease.InQuad);
+            }
         }
     }
     
     void CollectCoin()
     {
-        isCollected = true;
-        
-        // Add coins to the system
         if (CoinSystem.Instance != null)
         {
-            CoinSystem.Instance.AddCoins(value);
+            CoinSystem.Instance.AddCoins(coinValue);
+            Debug.Log($"Coin collected! Total coins: {CoinSystem.Instance.GetCurrentCoins()}");
+        }
+        else
+        {
+            Debug.LogError("CoinSystem.Instance is null!");
         }
         
-        // Show score popup
+        // Visual effect
         if (SimpleEffects.Instance != null)
         {
-            SimpleEffects.Instance.ShowScorePopup(transform.position, value * 10, Color.yellow);
+            SimpleEffects.Instance.ShowScorePopup(transform.position, coinValue, Color.yellow);
         }
         
-        // Play collection sound
+        // Sound effect
         if (SimpleSoundManager.Instance != null)
         {
             SimpleSoundManager.Instance.PlayCoinCollect();
         }
         
-        // Disable collider
-        Collider2D col = GetComponent<Collider2D>();
-        if (col != null) col.enabled = false;
+        // Collection animation
+        transform.DOKill();
+        transform.DOScale(0f, 0.2f).SetEase(Ease.InBack);
+        transform.DORotate(new Vector3(0, 0, 360), 0.2f, RotateMode.FastBeyond360);
         
-        // Start collection animation (handled in Update)
+        // Destroy after animation
+        Destroy(gameObject, 0.25f);
+    }
+    
+    // Called when coin goes off screen or too far behind
+    void OnBecameInvisible()
+    {
+        // Give it some extra time in case it comes back on screen
+        Invoke(nameof(CheckIfStillInvisible), 2f);
+    }
+    
+    void OnDestroy()
+    {
+        // Clean up any running tweens
+        transform.DOKill();
+    }
+    
+    void CheckIfStillInvisible()
+    {
+        if (player != null)
+        {
+            // If coin is too far behind player, destroy it
+            float distanceBehind = player.position.x - transform.position.x;
+            if (distanceBehind > 10f)
+            {
+                Destroy(gameObject);
+            }
+        }
+    }
+    
+    void OnDrawGizmosSelected()
+    {
+        // Show magnet range
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, effectiveMagnetRange);
     }
 }

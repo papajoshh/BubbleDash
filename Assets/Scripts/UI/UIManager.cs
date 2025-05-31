@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 
 public class UIManager : MonoBehaviour
 {
@@ -29,6 +30,7 @@ public class UIManager : MonoBehaviour
     public GameObject hudPanel;
     public Image speedIndicator;
     public Gradient speedGradient;
+    public Button upgradeButton; // New upgrade button
     
     private ScoreManager scoreManager;
     private GameManager gameManager;
@@ -87,6 +89,15 @@ public class UIManager : MonoBehaviour
             
         if (doubleCoinsButton != null)
             doubleCoinsButton.onClick.AddListener(OnDoubleCoinsClicked);
+            
+        if (upgradeButton != null)
+        {
+            upgradeButton.onClick.AddListener(() => {
+                UpgradeUI upgradeUI = FindObjectOfType<UpgradeUI>(true);
+                if (upgradeUI != null)
+                    upgradeUI.OpenUpgradeMenu();
+            });
+        }
         
         // Initialize UI
         UpdateScoreUI(0);
@@ -171,18 +182,50 @@ public class UIManager : MonoBehaviour
         {
             gameOverPanel.SetActive(true);
             
+            // Animate panel entrance
+            gameOverPanel.transform.localScale = Vector3.zero;
+            gameOverPanel.transform.DOScale(1f, 0.5f).SetEase(Ease.OutBack);
+            
             if (finalScoreText != null && scoreManager != null)
-                finalScoreText.text = $"Final Score: {scoreManager.GetCurrentScore():N0}";
+            {
+                int finalScore = scoreManager.GetCurrentScore();
+                finalScoreText.text = $"Final Score: {finalScore:N0}";
+                
+                // Animate score counting
+                int displayScore = 0;
+                DOTween.To(() => displayScore, x => displayScore = x, finalScore, 1f)
+                    .SetEase(Ease.OutQuad)
+                    .OnUpdate(() => {
+                        finalScoreText.text = $"Final Score: {displayScore:N0}";
+                    });
+            }
                 
             // Calculate coins earned (simplified: 1 coin per 100 points)
             int coinsEarned = scoreManager.GetCurrentScore() / 100;
             if (coinsEarnedText != null)
+            {
                 coinsEarnedText.text = $"Coins Earned: {coinsEarned}";
+                
+                // Pulse animation for coins
+                coinsEarnedText.transform.DOScale(1.2f, 0.5f)
+                    .SetLoops(2, LoopType.Yoyo)
+                    .SetDelay(0.5f);
+            }
                 
             // Show double coins button if ad is available
             if (doubleCoinsButton != null && AdManager.Instance != null)
             {
-                doubleCoinsButton.gameObject.SetActive(AdManager.Instance.IsRewardedAdReady());
+                bool adAvailable = AdManager.Instance.IsRewardedAdReady();
+                doubleCoinsButton.gameObject.SetActive(adAvailable);
+                
+                if (adAvailable)
+                {
+                    // Animate ad button
+                    doubleCoinsButton.transform.localScale = Vector3.zero;
+                    doubleCoinsButton.transform.DOScale(1f, 0.3f)
+                        .SetDelay(0.8f)
+                        .SetEase(Ease.OutBack);
+                }
             }
         }
     }

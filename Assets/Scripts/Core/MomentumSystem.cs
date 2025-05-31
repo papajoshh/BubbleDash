@@ -5,6 +5,7 @@ public class MomentumSystem : MonoBehaviour
     [Header("Momentum Settings")]
     public float baseSpeed = 3f;
     public float speedIncrement = 0.2f;
+    public float speedIncreasePerHit = 0.1f; // For upgrades
     public float maxSpeedMultiplier = 3f;
     public int consecutiveHits { get; private set; }
     
@@ -28,6 +29,13 @@ public class MomentumSystem : MonoBehaviour
         
         consecutiveHits = 0;
         lastHitTime = Time.time;
+        
+        // Apply starting upgrades
+        if (UpgradeSystem.Instance != null)
+        {
+            UpgradeSystem.Instance.ApplyStartingUpgrades();
+        }
+        
         UpdatePlayerSpeed();
     }
     
@@ -41,9 +49,9 @@ public class MomentumSystem : MonoBehaviour
         consecutiveHits++;
         lastHitTime = Time.time;
         
-        // Calculate new speed multiplier
+        // Calculate new speed multiplier (using upgradeable speedIncreasePerHit)
         currentSpeedMultiplier = Mathf.Min(
-            1f + (consecutiveHits * speedIncrement), 
+            1f + (consecutiveHits * speedIncreasePerHit), 
             maxSpeedMultiplier
         );
         
@@ -113,5 +121,11 @@ public class MomentumSystem : MonoBehaviour
     public bool IsAtMaxSpeed()
     {
         return currentSpeedMultiplier >= maxSpeedMultiplier;
+    }
+    
+    // Method for upgrades to manually add hits
+    public void OnSuccessfulHit()
+    {
+        OnBubbleHit();
     }
 }

@@ -23,6 +23,20 @@
 - Los Debug.Log no se ejecutan, sugiere problema con layers o Rigidbody
 - Verificar que Player tiene Rigidbody2D y las Static Bubbles tienen Collider2D
 
+### 3. CLICK EN POPUP DISPARA BURBUJA
+**Descripción**: Al hacer click en botones de popups pausados (upgrade, idle rewards), se dispara una burbuja cuando se cierra el popup.
+**Archivos afectados**:
+- `/Assets/Scripts/Core/BubbleShooter.cs`
+- `/Assets/Scripts/UI/UpgradeUI.cs`
+- `/Assets/Scripts/UI/IdleRewardsUI.cs`
+**Impacto**: UX molesto - acciones no deseadas al cerrar menús
+**Prioridad**: Media
+**Causa probable**: BubbleShooter sigue detectando input mientras el juego está pausado con `timeScale = 0`
+**Notas**: 
+- Solo afecta clicks en botones de UI, no en el fondo
+- Sucede al resumir el juego después de usar popup
+- Posible solución: Verificar que GameManager.IsPlaying() antes de disparar
+
 ## 📝 NOTAS PARA FUTURAS CORRECCIONES
 
 ### Parallax:
@@ -34,6 +48,11 @@
 - Verificar Project Settings → Physics 2D → Layer Collision Matrix
 - Probar con OnTriggerEnter2D usando triggers
 - Considerar usar Physics2D.OverlapCircle para detección manual
+
+### Click en Popup:
+- Agregar check `if (!GameManager.Instance.IsPlaying()) return;` en BubbleShooter.HandleInput()
+- O usar EventSystem.current.IsPointerOverGameObject() para detectar clicks en UI
+- Considerar agregar delay de 0.1s después de resumir juego antes de permitir shooting
 
 ---
 Última actualización: 2024-12-31

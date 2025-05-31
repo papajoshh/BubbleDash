@@ -108,6 +108,7 @@ MonoBehaviour:
   shootPoint: {fileID: 5064411934770998632}
   shootForce: 25
   bubbleScale: 0.25
+  shootCooldown: 0.5
   trajectoryLine: {fileID: 5027710209735213817}
   trajectoryPoints: 30
   trajectoryTimeStep: 0.1
@@ -115,7 +116,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   nextBubbleColor: 0
-  nextBubbleUIImage: {fileID: 0}
+  playerSpriteRenderer: {fileID: 7409709806658975963}
+  playerRedSprite: {fileID: 21300000, guid: b44a17c5b146585468f0307af243c818, type: 3}
+  playerBlueSprite: {fileID: 21300000, guid: 8df0f14b952db7b4a921bb281cfb8326, type: 3}
+  playerGreenSprite: {fileID: 21300000, guid: 0d4c0fa1c0f5408488500e3e530d9a83, type: 3}
+  playerYellowSprite: {fileID: 21300000, guid: 6d73a91dc67d90645a53b04164d36afe, type: 3}
 --- !u!114 &5750833994511760962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -130,6 +135,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseSpeed: 3
   speedIncrement: 0.2
+  speedIncreasePerHit: 0.1
   maxSpeedMultiplier: 3
   momentumDecayTime: 2
   resetOnMiss: 1

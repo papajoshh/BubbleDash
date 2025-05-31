@@ -48,6 +48,8 @@ public class GameManager : MonoBehaviour
         {
             momentumSystem = FindObjectOfType<MomentumSystem>();
         }
+        if (UpgradeSystem.Instance != null)
+            UpgradeSystem.Instance.ApplyStartingUpgrades();
         
         // Auto start if enabled
         if (autoStartGame)
@@ -104,6 +106,10 @@ public class GameManager : MonoBehaviour
             ScoreManager.Instance.ResetScore();
         }
         
+        // Apply starting upgrades each game
+        if (UpgradeSystem.Instance != null)
+            UpgradeSystem.Instance.ApplyStartingUpgrades();
+        
         OnGameStart?.Invoke();
         Debug.Log("Game Started!");
     }
@@ -117,6 +123,17 @@ public class GameManager : MonoBehaviour
         
         OnGamePause?.Invoke();
         Debug.Log("Game Paused");
+    }
+    
+    // Pause game without triggering UI events (for menus like upgrade)
+    public void PauseGameSilent()
+    {
+        if (currentState != GameState.Playing) return;
+        
+        currentState = GameState.Paused;
+        Time.timeScale = 0f;
+        
+        Debug.Log("Game Paused (Silent)");
     }
     
     public void ResumeGame()
@@ -172,6 +189,10 @@ public class GameManager : MonoBehaviour
         {
             ScoreManager.Instance.ResetScore();
         }
+        
+        // Apply starting upgrades each game restart
+        if (UpgradeSystem.Instance != null)
+            UpgradeSystem.Instance.ApplyStartingUpgrades();
         
         // Reset camera position
         CameraFollow cameraFollow = FindObjectOfType<CameraFollow>();

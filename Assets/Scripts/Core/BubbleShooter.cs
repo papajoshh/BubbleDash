@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class BubbleShooter : MonoBehaviour
 {
@@ -18,7 +17,13 @@ public class BubbleShooter : MonoBehaviour
     
     [Header("Bubble Queue")]
     public BubbleColor nextBubbleColor;
-    public UnityEngine.UI.Image nextBubbleUIImage; // Para UI Canvas
+    
+    [Header("Player Visual Feedback")]
+    public SpriteRenderer playerSpriteRenderer; // Reference to player's sprite renderer
+    public Sprite playerRedSprite;
+    public Sprite playerBlueSprite;
+    public Sprite playerGreenSprite;
+    public Sprite playerYellowSprite;
     
     private Camera mainCamera;
     private bool isAiming = false;
@@ -61,6 +66,16 @@ public class BubbleShooter : MonoBehaviour
         if (playerObject != null)
         {
             playerCollider = playerObject.GetComponent<Collider2D>();
+            
+            // Get player sprite renderer if not assigned
+            if (playerSpriteRenderer == null)
+            {
+                playerSpriteRenderer = playerObject.GetComponent<SpriteRenderer>();
+                if (playerSpriteRenderer == null)
+                {
+                    playerSpriteRenderer = playerObject.GetComponentInChildren<SpriteRenderer>();
+                }
+            }
         }
         
         // Initialize with random bubble color
@@ -227,76 +242,59 @@ public class BubbleShooter : MonoBehaviour
         // Random next bubble color
         nextBubbleColor = (BubbleColor)Random.Range(0, 4);
         
-        // Update UI Image preview with actual bubble sprite
-        if (nextBubbleUIImage != null)
+        // Update player color to match next bubble
+        UpdatePlayerColor();
+    }
+    
+    void UpdatePlayerColor()
+    {
+        if (playerSpriteRenderer == null) return;
+        
+        // Set player sprite to match the next bubble color
+        Sprite newSprite = GetPlayerSprite(nextBubbleColor);
+        if (newSprite != null)
         {
-            // Get bubble sprites from prefab
-            Bubble tempBubble = bubblePrefab?.GetComponent<Bubble>();
-            if (tempBubble != null)
-            {
-                Sprite bubbleSprite = null;
-                Color tintColor = Color.white; // Default white = no tint
-                
-                switch (nextBubbleColor)
-                {
-                    case BubbleColor.Red:
-                        bubbleSprite = tempBubble.redBubbleSprite;
-                        if (bubbleSprite == null) tintColor = Color.red;
-                        break;
-                    case BubbleColor.Blue:
-                        bubbleSprite = tempBubble.blueBubbleSprite;
-                        if (bubbleSprite == null) tintColor = new Color(0.2f, 0.4f, 1f);
-                        break;
-                    case BubbleColor.Green:
-                        bubbleSprite = tempBubble.greenBubbleSprite;
-                        if (bubbleSprite == null) tintColor = new Color(0.2f, 0.8f, 0.2f);
-                        break;
-                    case BubbleColor.Yellow:
-                        bubbleSprite = tempBubble.yellowBubbleSprite;
-                        if (bubbleSprite == null) tintColor = new Color(1f, 0.9f, 0.2f);
-                        break;
-                }
-                
-                // Apply sprite if available
-                if (bubbleSprite != null)
-                {
-                    nextBubbleUIImage.sprite = bubbleSprite;
-                    nextBubbleUIImage.color = Color.white; // No tint when using colored sprite
-                }
-                else
-                {
-                    // Fallback: use any available sprite and tint it
-                    if (tempBubble.redBubbleSprite != null)
-                        nextBubbleUIImage.sprite = tempBubble.redBubbleSprite;
-                    else if (tempBubble.blueBubbleSprite != null)
-                        nextBubbleUIImage.sprite = tempBubble.blueBubbleSprite;
-                    else if (tempBubble.greenBubbleSprite != null)
-                        nextBubbleUIImage.sprite = tempBubble.greenBubbleSprite;
-                    else if (tempBubble.yellowBubbleSprite != null)
-                        nextBubbleUIImage.sprite = tempBubble.yellowBubbleSprite;
-                        
-                    nextBubbleUIImage.color = tintColor;
-                }
-            }
-            else
-            {
-                // No bubble component, just use color
-                switch (nextBubbleColor)
-                {
-                    case BubbleColor.Red:
-                        nextBubbleUIImage.color = Color.red;
-                        break;
-                    case BubbleColor.Blue:
-                        nextBubbleUIImage.color = new Color(0.2f, 0.4f, 1f);
-                        break;
-                    case BubbleColor.Green:
-                        nextBubbleUIImage.color = new Color(0.2f, 0.8f, 0.2f);
-                        break;
-                    case BubbleColor.Yellow:
-                        nextBubbleUIImage.color = new Color(1f, 0.9f, 0.2f);
-                        break;
-                }
-            }
+            playerSpriteRenderer.sprite = newSprite;
+            playerSpriteRenderer.color = Color.white; // Reset to white to show sprite colors properly
+        }
+        else
+        {
+            // Fallback: if no sprite assigned, use color tinting
+            playerSpriteRenderer.color = GetBubbleColor(nextBubbleColor);
+        }
+    }
+    
+    Sprite GetPlayerSprite(BubbleColor bubbleColor)
+    {
+        switch (bubbleColor)
+        {
+            case BubbleColor.Red:
+                return playerRedSprite;
+            case BubbleColor.Blue:
+                return playerBlueSprite;
+            case BubbleColor.Green:
+                return playerGreenSprite;
+            case BubbleColor.Yellow:
+                return playerYellowSprite;
+            default:
+                return null;
+        }
+    }
+    
+    Color GetBubbleColor(BubbleColor bubbleColor)
+    {
+        switch (bubbleColor)
+        {
+            case BubbleColor.Red:
+                return Color.red;
+            case BubbleColor.Blue:
+                return new Color(0.2f, 0.4f, 1f); // Nice blue
+            case BubbleColor.Green:
+                return new Color(0.2f, 0.8f, 0.2f); // Bright green
+            case BubbleColor.Yellow:
+                return new Color(1f, 0.9f, 0.2f); // Golden yellow
+            default:
+                return Color.white;
         }
     }
     

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using TMPro;
+using DG.Tweening;
 
 public class SimpleEffects : MonoBehaviour
 {
@@ -79,36 +80,16 @@ public class SimpleEffects : MonoBehaviour
         sr.color = bubbleColor;
         sr.sortingOrder = 5;
         
-        // Start the pop animation
-        StartCoroutine(PopAnimation(popEffect));
-    }
-    
-    IEnumerator PopAnimation(GameObject popObject)
-    {
-        Transform trans = popObject.transform;
-        SpriteRenderer sr = popObject.GetComponent<SpriteRenderer>();
+        // Initial scale
+        popEffect.transform.localScale = Vector3.one * 0.5f;
         
-        float elapsed = 0f;
-        Vector3 originalScale = Vector3.one * 0.5f; // Start from bubble size
+        // Scale up animation
+        popEffect.transform.DOScale(Vector3.one * (0.5f + popScaleMultiplier), popDuration)
+            .SetEase(popCurve);
         
-        while (elapsed < popDuration)
-        {
-            elapsed += Time.deltaTime;
-            float progress = elapsed / popDuration;
-            
-            // Scale up and fade out
-            float curveValue = popCurve.Evaluate(progress);
-            trans.localScale = originalScale * (1f + curveValue * popScaleMultiplier);
-            
-            // Fade alpha
-            Color color = sr.color;
-            color.a = 1f - progress;
-            sr.color = color;
-            
-            yield return null;
-        }
-        
-        Destroy(popObject);
+        // Fade out animation
+        sr.DOFade(0f, popDuration)
+            .OnComplete(() => Destroy(popEffect));
     }
     
     // Show combo text that rises and fades
@@ -133,44 +114,34 @@ public class SimpleEffects : MonoBehaviour
                 tmp.color = Color.yellow;
         }
         
-        StartCoroutine(ComboTextAnimation(comboObj));
-    }
-    
-    IEnumerator ComboTextAnimation(GameObject textObj)
-    {
-        TextMeshPro tmp = textObj.GetComponent<TextMeshPro>();
-        Vector3 startPos = textObj.transform.position;
+        // Move up animation
+        comboObj.transform.DOMoveY(position.y + comboTextRiseSpeed, comboTextDuration)
+            .SetEase(Ease.OutQuad);
         
-        float elapsed = 0f;
-        
-        while (elapsed < comboTextDuration)
+        // Scale animation with curve
+        if (comboTextCurve != null && comboTextCurve.keys.Length > 0)
         {
-            elapsed += Time.deltaTime;
-            float progress = elapsed / comboTextDuration;
-            
-            // Move up
-            textObj.transform.position = startPos + Vector3.up * (comboTextRiseSpeed * progress);
-            
-            // Scale bounce
-            if (comboTextCurve != null && comboTextCurve.keys.Length > 0)
-            {
-                float scale = comboTextCurve.Evaluate(progress);
-                textObj.transform.localScale = Vector3.one * scale;
-            }
-            
-            // Fade out in last 30%
-            if (progress > 0.7f)
-            {
-                float fadeProgress = (progress - 0.7f) / 0.3f;
-                Color color = tmp.color;
-                color.a = 1f - fadeProgress;
-                tmp.color = color;
-            }
-            
-            yield return null;
+            // Use DOTween's custom ease with AnimationCurve
+            comboObj.transform.DOScale(1f, comboTextDuration)
+                .SetEase(comboTextCurve);
+        }
+        else
+        {
+            // Default bounce scale
+            comboObj.transform.DOScale(1.2f, comboTextDuration * 0.3f)
+                .SetLoops(2, LoopType.Yoyo);
         }
         
-        Destroy(textObj);
+        // Fade out in last 30%
+        if (tmp != null)
+        {
+            Sequence fadeSequence = DOTween.Sequence();
+            fadeSequence.AppendInterval(comboTextDuration * 0.7f);
+            fadeSequence.Append(tmp.DOFade(0f, comboTextDuration * 0.3f));
+        }
+        
+        // Destroy after all animations
+        Destroy(comboObj, comboTextDuration + 0.1f);
     }
     
     // Screen shake for impacts
@@ -181,32 +152,17 @@ public class SimpleEffects : MonoBehaviour
         if (intensity < 0) intensity = shakeIntensity;
         if (duration < 0) duration = shakeDuration;
         
-        StartCoroutine(ScreenShakeCoroutine(intensity, duration));
-    }
-    
-    IEnumerator ScreenShakeCoroutine(float intensity, float duration)
-    {
-        float elapsed = 0f;
+        // Kill any existing shake
+        mainCamera.transform.DOKill();
         
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float progress = elapsed / duration;
-            
-            // Reduce intensity over time
-            float currentIntensity = intensity * (1f - progress);
-            
-            // Random shake
-            float x = Random.Range(-1f, 1f) * currentIntensity;
-            float y = Random.Range(-1f, 1f) * currentIntensity;
-            
-            mainCamera.transform.position = originalCameraPosition + new Vector3(x, y, 0);
-            
-            yield return null;
-        }
-        
-        // Reset position
+        // Reset to original position first
         mainCamera.transform.position = originalCameraPosition;
+        
+        // Shake using DOTween
+        mainCamera.transform.DOShakePosition(duration, intensity, 10, 90, false, true)
+            .OnComplete(() => {
+                mainCamera.transform.position = originalCameraPosition;
+            });
     }
     
     // Flash sprite color
@@ -215,17 +171,13 @@ public class SimpleEffects : MonoBehaviour
         if (sprite == null) return;
         if (duration < 0) duration = flashDuration;
         
-        StartCoroutine(FlashCoroutine(sprite, flashColor, duration));
-    }
-    
-    IEnumerator FlashCoroutine(SpriteRenderer sprite, Color flashColor, float duration)
-    {
         Color originalColor = sprite.color;
-        sprite.color = flashColor;
         
-        yield return new WaitForSeconds(duration);
-        
-        sprite.color = originalColor;
+        // Create a sequence for the flash effect
+        Sequence flashSequence = DOTween.Sequence();
+        flashSequence.Append(sprite.DOColor(flashColor, 0f));
+        flashSequence.AppendInterval(duration);
+        flashSequence.Append(sprite.DOColor(originalColor, 0f));
     }
     
     // Score popup for coins/points
@@ -241,34 +193,19 @@ public class SimpleEffects : MonoBehaviour
         tmp.alignment = TextAlignmentOptions.Center;
         tmp.sortingOrder = 10;
         
-        StartCoroutine(ScorePopupAnimation(scoreObj));
-    }
-    
-    IEnumerator ScorePopupAnimation(GameObject scoreObj)
-    {
-        Vector3 startPos = scoreObj.transform.position;
-        TextMeshPro tmp = scoreObj.GetComponent<TextMeshPro>();
-        
-        float elapsed = 0f;
         float duration = 1f;
         
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float progress = elapsed / duration;
-            
-            // Float up
-            scoreObj.transform.position = startPos + Vector3.up * progress;
-            
-            // Fade out
-            Color color = tmp.color;
-            color.a = 1f - progress;
-            tmp.color = color;
-            
-            yield return null;
-        }
+        // Float up animation
+        scoreObj.transform.DOMoveY(position.y + 1f, duration)
+            .SetEase(Ease.OutQuad);
         
-        Destroy(scoreObj);
+        // Fade out animation
+        tmp.DOFade(0f, duration)
+            .OnComplete(() => Destroy(scoreObj));
+        
+        // Optional: Add a subtle scale effect
+        scoreObj.transform.localScale = Vector3.zero;
+        scoreObj.transform.DOScale(1f, 0.2f).SetEase(Ease.OutBack);
     }
     
     // Miss effect - subtle puff for wrong color hits
@@ -283,36 +220,19 @@ public class SimpleEffects : MonoBehaviour
         sr.color = new Color(0.8f, 0.8f, 0.8f, 0.5f); // Light gray, semi-transparent
         sr.sortingOrder = 5;
         
-        // Start the miss animation (smaller, quicker fade)
-        StartCoroutine(MissAnimation(missEffect));
-    }
-    
-    IEnumerator MissAnimation(GameObject missObject)
-    {
-        Transform trans = missObject.transform;
-        SpriteRenderer sr = missObject.GetComponent<SpriteRenderer>();
+        // Initial scale
+        missEffect.transform.localScale = Vector3.one * 0.3f;
         
-        float elapsed = 0f;
         float duration = 0.2f; // Shorter than pop
-        Vector3 originalScale = Vector3.one * 0.3f; // Smaller effect
         
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float progress = elapsed / duration;
-            
-            // Just fade out, minimal scale change
-            trans.localScale = originalScale * (1f + progress * 0.2f);
-            
-            // Fade alpha quickly
-            Color color = sr.color;
-            color.a = 0.5f * (1f - progress);
-            sr.color = color;
-            
-            yield return null;
-        }
+        // Subtle scale up
+        missEffect.transform.DOScale(Vector3.one * 0.36f, duration)
+            .SetEase(Ease.OutQuad);
         
-        Destroy(missObject);
+        // Quick fade out
+        sr.DOFade(0f, duration)
+            .SetEase(Ease.InQuad)
+            .OnComplete(() => Destroy(missEffect));
     }
     
     // Helper to get/create a circle sprite
