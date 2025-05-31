@@ -57,7 +57,7 @@ public class ScoreManager : MonoBehaviour
         ResetScore();
     }
     
-    void Update()
+    void FixedUpdate() // Changed to FixedUpdate for less frequent updates
     {
         UpdateDistanceScore();
     }
@@ -144,6 +144,13 @@ public class ScoreManager : MonoBehaviour
     public int GetHighScore() => highScore;
     public int GetDistanceScore() => distanceScore;
     public int GetBubbleScore() => bubbleScore;
+    
+    // Method to add bonus score (like from coins)
+    public void AddBonusScore(int points)
+    {
+        currentScore += points;
+        OnScoreChanged?.Invoke(currentScore);
+    }
     
     // Score formatting for UI
     public string GetScoreText()

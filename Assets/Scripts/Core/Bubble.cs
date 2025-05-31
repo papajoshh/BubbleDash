@@ -9,6 +9,7 @@ public class Bubble : MonoBehaviour
     [Header("Physics")]
     public float maxLifetime = 10f;
     public float stopVelocityThreshold = 0.5f;
+    public float maxDistanceBehindPlayer = 15f; // Destroy if too far behind
     
     [Header("Visual")]
     public SpriteRenderer bubbleRenderer;
@@ -27,10 +28,7 @@ public class Bubble : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        if (rb == null)
-        {
-            rb = gameObject.AddComponent<Rigidbody2D>();
-        }
+        // Don't add Rigidbody2D automatically - let BubbleShooter handle it
         
         if (bubbleRenderer == null)
         {
@@ -65,11 +63,20 @@ public class Bubble : MonoBehaviour
             return;
         }
         
-        // Check if bubble has stopped moving
-        if (rb != null && rb.velocity.magnitude < stopVelocityThreshold && !hasCollided)
+        // Check if bubble is too far behind player
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
         {
-            OnBubbleSettled();
+            float distanceBehind = player.transform.position.x - transform.position.x;
+            if (distanceBehind > maxDistanceBehindPlayer)
+            {
+                DestroyBubble();
+                return;
+            }
         }
+        
+        // For endless runner, bubbles shouldn't stop - they should keep moving or be destroyed
+        // Remove the velocity check since we want bubbles to keep moving
     }
     
     void OnCollisionEnter2D(Collision2D collision)
@@ -108,30 +115,24 @@ public class Bubble : MonoBehaviour
     
     void OnWallCollision()
     {
-        // Bubble hit a wall, maybe bounce or stick depending on game design
+        // In endless runner, bubbles bounce off walls but don't stick
+        // WallBounce component handles the actual bouncing
+        
+        // Just mark that we've hit something
         hasCollided = true;
         
-        if (rb != null)
-        {
-            rb.velocity *= 0.5f; // Reduce velocity on wall hit
-        }
+        // Don't reduce velocity here - let WallBounce handle it
+        // This prevents double velocity reduction
     }
     
     void OnBubbleSettled()
     {
+        // In endless runner, bubbles shouldn't settle - they should be destroyed
+        // This method is kept for compatibility but bubbles are destroyed instead
         hasCollided = true;
         
-        // Make bubble static
-        if (rb != null)
-        {
-            rb.isKinematic = true;
-        }
-        
-        // Check for matches
-        if (BubbleManager.Instance != null)
-        {
-            BubbleManager.Instance.CheckForMatches(this);
-        }
+        // Destroy bubble that has settled (stopped moving)
+        DestroyBubble();
     }
     
     void UpdateAppearance()

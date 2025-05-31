@@ -173,6 +173,13 @@ public class GameManager : MonoBehaviour
             ScoreManager.Instance.ResetScore();
         }
         
+        // Reset camera position
+        CameraFollow cameraFollow = FindObjectOfType<CameraFollow>();
+        if (cameraFollow != null)
+        {
+            cameraFollow.SnapToTarget();
+        }
+        
         OnGameRestart?.Invoke();
         Debug.Log("Game Restarted!");
     }

@@ -7,16 +7,19 @@ public class PlayerController : MonoBehaviour
     public float currentSpeed { get; private set; }
     
     [Header("Boundaries")]
-    public Vector2 verticalBounds = new Vector2(-4f, 4f);
+    public Vector2 verticalBounds = new Vector2(-4.5f, 2f); // Ajustado para nueva posición
     public float forwardBoundary = 20f;
     
     [Header("Starting Position")]
-    public Vector3 fixedStartPosition = new Vector3(-7f, 0f, 0f);
+    public Vector3 fixedStartPosition = new Vector3(-7f, -2.5f, 0f);
     public bool useFixedStartPosition = true;
     
     public bool isAlive { get; private set; } = true;
     
     private Vector3 startPosition;
+    
+    [Header("Collision")]
+    public LayerMask obstacleLayer = -1; // All layers by default
     
     void Start()
     {
@@ -62,17 +65,6 @@ public class PlayerController : MonoBehaviour
         currentSpeed = speed;
     }
     
-    public void Die()
-    {
-        isAlive = false;
-        Debug.Log("Player died!");
-        
-        // Notify GameManager if exists
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.GameOver();
-        }
-    }
     
     public void Restart()
     {
@@ -94,9 +86,70 @@ public class PlayerController : MonoBehaviour
     
     void OnTriggerEnter2D(Collider2D other)
     {
+        if (!isAlive) return;
+        
+        // Check for static bubbles
+        StaticBubble staticBubble = other.GetComponent<StaticBubble>();
+        if (staticBubble != null)
+        {
+            Debug.Log("Player hit a static bubble (trigger) - Game Over!");
+            Die();
+            return;
+        }
+        
         if (other.CompareTag("Obstacle"))
         {
             Die();
         }
+    }
+    
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (!isAlive) return;
+        
+        // Check if we hit a static bubble
+        StaticBubble staticBubble = collision.gameObject.GetComponent<StaticBubble>();
+        if (staticBubble != null)
+        {
+            Debug.Log("Player hit a static bubble (collision) - Game Over!");
+            Die();
+            return;
+        }
+        
+        // Check by tag as backup
+        if (collision.gameObject.CompareTag("Obstacle"))
+        {
+            Debug.Log("Player hit an obstacle - Game Over!");
+            Die();
+        }
+    }
+    
+    public void Die()
+    {
+        if (!isAlive) return;
+        
+        isAlive = false;
+        currentSpeed = 0f;
+        
+        // Visual feedback
+        if (SimpleEffects.Instance != null)
+        {
+            SimpleEffects.Instance.PlayBubblePop(transform.position, Color.red);
+            SimpleEffects.Instance.ShakeScreen(0.3f, 0.5f);
+        }
+        
+        // Sound feedback
+        if (SimpleSoundManager.Instance != null)
+        {
+            SimpleSoundManager.Instance.PlayGameOver();
+        }
+        
+        // Trigger game over
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.GameOver();
+        }
+        
+        Debug.Log("Player died!");
     }
 }

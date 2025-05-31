@@ -121,10 +121,10 @@ El juego tiene todas las mecánicas core implementadas y funcionando en Unity Ed
 ```
 Core Mechanics:     ████████████████████ 100%
 UI/UX:             ████████████████░░░░ 80%
-Polish:            ████░░░░░░░░░░░░░░░░ 20%
+Polish:            ████████░░░░░░░░░░░░ 40%
 Monetization:      ████████████░░░░░░░░ 60%
-Launch Ready:      ████████░░░░░░░░░░░░ 40%
-Overall:           ████████████░░░░░░░░ 60%
+Launch Ready:      ████████████░░░░░░░░ 60%
+Overall:           ████████████████░░░░ 75%
 ```
 
 ## 🎮 CÓMO TESTEAR EL ESTADO ACTUAL
@@ -149,11 +149,13 @@ Overall:           ████████████░░░░░░░░ 
 
 ## 🚀 PRÓXIMOS PASOS INMEDIATOS
 
-1. **Completar testing de build Android**
-2. **Implementar ObstacleGenerator básico**
-3. **Agregar efectos de sonido mínimos**
-4. **Crear 3 obstáculos diferentes**
-5. **Pulir el Game Over flow**
+1. ✅ **Completar testing de build Android**
+2. ✅ **Implementar ObstacleGenerator básico**
+3. ⏳ **Agregar efectos de sonido mínimos**
+4. ✅ **Crear 3 obstáculos diferentes**
+5. ✅ **Pulir el Game Over flow**
+6. ⏳ **Integrar Google Mobile Ads SDK**
+7. ⏳ **Balance de dificultad y gameplay**
 
 ---
 

@@ -8,7 +8,7 @@ public class BubbleManager : MonoBehaviour
     [Header("Bubble Settings")]
     public LayerMask bubbleLayer = 1;
     public float detectionRadius = 0.6f;
-    public int minMatchCount = 3;
+    public int minMatchCount = 1; // Explode on any same-color contact
     
     [Header("Effects")]
     public GameObject popEffect;
@@ -111,18 +111,53 @@ public class BubbleManager : MonoBehaviour
     
     void DestroyBubbles(List<Bubble> bubblesToDestroy)
     {
+        // Calculate center position for combo text
+        Vector3 centerPos = Vector3.zero;
+        Color bubbleColor = Color.white;
+        
         foreach (Bubble bubble in bubblesToDestroy)
         {
             if (bubble != null)
             {
-                // Spawn pop effect
+                centerPos += bubble.transform.position;
+                
+                // Get the actual bubble color from the bubble component
+                Color effectColor = Color.white;
+                switch (bubble.bubbleColor)
+                {
+                    case BubbleColor.Red:
+                        effectColor = Color.red;
+                        break;
+                    case BubbleColor.Blue:
+                        effectColor = new Color(0.2f, 0.4f, 1f);
+                        break;
+                    case BubbleColor.Green:
+                        effectColor = new Color(0.2f, 0.8f, 0.2f);
+                        break;
+                    case BubbleColor.Yellow:
+                        effectColor = new Color(1f, 0.9f, 0.2f);
+                        break;
+                }
+                
+                // Play pop effect using SimpleEffects
+                if (SimpleEffects.Instance != null)
+                {
+                    SimpleEffects.Instance.PlayBubblePop(bubble.transform.position, effectColor);
+                }
+                
+                // Spawn pop effect prefab if assigned
                 if (popEffect != null)
                 {
                     Instantiate(popEffect, bubble.transform.position, Quaternion.identity);
                 }
                 
-                // Play pop sound
-                if (popSound != null && audioSource != null)
+                // Play pop sound using SimpleSoundManager
+                if (SimpleSoundManager.Instance != null)
+                {
+                    SimpleSoundManager.Instance.PlayBubblePop();
+                }
+                // Or use local sound if assigned
+                else if (popSound != null && audioSource != null)
                 {
                     audioSource.PlayOneShot(popSound);
                 }
@@ -132,6 +167,32 @@ public class BubbleManager : MonoBehaviour
                 
                 // Destroy the bubble
                 Destroy(bubble.gameObject);
+            }
+        }
+        
+        // Show combo text if we destroyed multiple bubbles
+        if (bubblesToDestroy.Count >= 3 && SimpleEffects.Instance != null)
+        {
+            centerPos /= bubblesToDestroy.Count;
+            
+            // Get current combo from momentum system
+            int comboCount = 1;
+            MomentumSystem momentum = FindObjectOfType<MomentumSystem>();
+            if (momentum != null)
+                comboCount = momentum.GetComboCount();
+                
+            SimpleEffects.Instance.ShowComboText(centerPos, comboCount);
+            
+            // Play combo sound
+            if (SimpleSoundManager.Instance != null)
+            {
+                SimpleSoundManager.Instance.PlayComboSound(bubblesToDestroy.Count);
+            }
+            
+            // Small screen shake for big combos
+            if (bubblesToDestroy.Count >= 5)
+            {
+                SimpleEffects.Instance.ShakeScreen(0.1f, 0.2f);
             }
         }
         

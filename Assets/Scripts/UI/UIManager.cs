@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI highScoreText;
     public TextMeshProUGUI distanceText;
     public TextMeshProUGUI comboText;
+    public TextMeshProUGUI coinText;
     
     [Header("Game Over UI")]
     public GameObject gameOverPanel;
@@ -57,6 +58,13 @@ public class UIManager : MonoBehaviour
             gameManager.OnGameRestart += OnGameStart; // Use same method for restart
         }
         
+        // Subscribe to coin events
+        if (CoinSystem.Instance != null)
+        {
+            CoinSystem.Instance.OnCoinsChanged += UpdateCoinUI;
+            UpdateCoinUI(CoinSystem.Instance.GetCurrentCoins());
+        }
+        
         // Setup buttons
         if (restartButton != null)
             restartButton.onClick.AddListener(() => {
@@ -99,6 +107,12 @@ public class UIManager : MonoBehaviour
             
         if (highScoreText != null && scoreManager != null)
             highScoreText.text = $"Best: {scoreManager.GetHighScore():N0}";
+    }
+    
+    void UpdateCoinUI(int coins)
+    {
+        if (coinText != null)
+            coinText.text = $"Coins: {coins}";
     }
     
     void UpdateDistanceUI(int distance)
@@ -211,6 +225,11 @@ public class UIManager : MonoBehaviour
             gameManager.OnGamePause -= OnGamePause;
             gameManager.OnGameResume -= OnGameResume;
             gameManager.OnGameRestart -= OnGameStart;
+        }
+        
+        if (CoinSystem.Instance != null)
+        {
+            CoinSystem.Instance.OnCoinsChanged -= UpdateCoinUI;
         }
     }
     

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BubbleShooter : MonoBehaviour
 {
@@ -16,12 +17,14 @@ public class BubbleShooter : MonoBehaviour
     
     [Header("Bubble Queue")]
     public BubbleColor nextBubbleColor;
-    public Transform nextBubbleDisplay;
+    public UnityEngine.UI.Image nextBubbleUIImage; // Para UI Canvas
     
     private Camera mainCamera;
     private bool isAiming = false;
     private Vector2 aimDirection;
     private bool canShoot = true;
+    private GameObject playerObject;
+    private Collider2D playerCollider;
     
     void Start()
     {
@@ -45,6 +48,19 @@ public class BubbleShooter : MonoBehaviour
         trajectoryLine.startWidth = 0.05f;
         trajectoryLine.endWidth = 0.05f;
         trajectoryLine.enabled = false;
+        
+        // Find player reference
+        playerObject = GameObject.FindGameObjectWithTag("Player");
+        if (playerObject == null)
+        {
+            PlayerController pc = FindObjectOfType<PlayerController>();
+            if (pc != null) playerObject = pc.gameObject;
+        }
+        
+        if (playerObject != null)
+        {
+            playerCollider = playerObject.GetComponent<Collider2D>();
+        }
         
         // Initialize with random bubble color
         GenerateNextBubble();
@@ -156,6 +172,22 @@ public class BubbleShooter : MonoBehaviour
         // Apply force
         bubbleRb.AddForce(aimDirection * shootForce, ForceMode2D.Impulse);
         
+        // Ignore collision with player
+        if (playerCollider != null)
+        {
+            Collider2D bubbleCollider = bubble.GetComponent<Collider2D>();
+            if (bubbleCollider != null)
+            {
+                Physics2D.IgnoreCollision(playerCollider, bubbleCollider);
+            }
+        }
+        
+        // Play shoot sound
+        if (SimpleSoundManager.Instance != null)
+        {
+            SimpleSoundManager.Instance.PlayBubbleShoot();
+        }
+        
         // Notify momentum system
         MomentumSystem momentum = GetComponent<MomentumSystem>();
         if (momentum != null)
@@ -200,26 +232,73 @@ public class BubbleShooter : MonoBehaviour
         // Random next bubble color
         nextBubbleColor = (BubbleColor)Random.Range(0, 4);
         
-        // Update visual preview if exists
-        if (nextBubbleDisplay != null)
+        // Update UI Image preview with actual bubble sprite
+        if (nextBubbleUIImage != null)
         {
-            SpriteRenderer previewSprite = nextBubbleDisplay.GetComponent<SpriteRenderer>();
-            if (previewSprite != null)
+            // Get bubble sprites from prefab
+            Bubble tempBubble = bubblePrefab?.GetComponent<Bubble>();
+            if (tempBubble != null)
             {
-                // Set preview color
+                Sprite bubbleSprite = null;
+                Color tintColor = Color.white; // Default white = no tint
+                
                 switch (nextBubbleColor)
                 {
                     case BubbleColor.Red:
-                        previewSprite.color = Color.red;
+                        bubbleSprite = tempBubble.redBubbleSprite;
+                        if (bubbleSprite == null) tintColor = Color.red;
                         break;
                     case BubbleColor.Blue:
-                        previewSprite.color = Color.blue;
+                        bubbleSprite = tempBubble.blueBubbleSprite;
+                        if (bubbleSprite == null) tintColor = new Color(0.2f, 0.4f, 1f);
                         break;
                     case BubbleColor.Green:
-                        previewSprite.color = Color.green;
+                        bubbleSprite = tempBubble.greenBubbleSprite;
+                        if (bubbleSprite == null) tintColor = new Color(0.2f, 0.8f, 0.2f);
                         break;
                     case BubbleColor.Yellow:
-                        previewSprite.color = Color.yellow;
+                        bubbleSprite = tempBubble.yellowBubbleSprite;
+                        if (bubbleSprite == null) tintColor = new Color(1f, 0.9f, 0.2f);
+                        break;
+                }
+                
+                // Apply sprite if available
+                if (bubbleSprite != null)
+                {
+                    nextBubbleUIImage.sprite = bubbleSprite;
+                    nextBubbleUIImage.color = Color.white; // No tint when using colored sprite
+                }
+                else
+                {
+                    // Fallback: use any available sprite and tint it
+                    if (tempBubble.redBubbleSprite != null)
+                        nextBubbleUIImage.sprite = tempBubble.redBubbleSprite;
+                    else if (tempBubble.blueBubbleSprite != null)
+                        nextBubbleUIImage.sprite = tempBubble.blueBubbleSprite;
+                    else if (tempBubble.greenBubbleSprite != null)
+                        nextBubbleUIImage.sprite = tempBubble.greenBubbleSprite;
+                    else if (tempBubble.yellowBubbleSprite != null)
+                        nextBubbleUIImage.sprite = tempBubble.yellowBubbleSprite;
+                        
+                    nextBubbleUIImage.color = tintColor;
+                }
+            }
+            else
+            {
+                // No bubble component, just use color
+                switch (nextBubbleColor)
+                {
+                    case BubbleColor.Red:
+                        nextBubbleUIImage.color = Color.red;
+                        break;
+                    case BubbleColor.Blue:
+                        nextBubbleUIImage.color = new Color(0.2f, 0.4f, 1f);
+                        break;
+                    case BubbleColor.Green:
+                        nextBubbleUIImage.color = new Color(0.2f, 0.8f, 0.2f);
+                        break;
+                    case BubbleColor.Yellow:
+                        nextBubbleUIImage.color = new Color(1f, 0.9f, 0.2f);
                         break;
                 }
             }

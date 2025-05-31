@@ -302,7 +302,7 @@ Usar el script WallBounce.cs que creamos
 2. **Hacer hijo de "World"** (arrastrar dentro)
 3. **Transform**:
    ```
-   Position: (0, 5.5, 0)
+   Position: (0, 3, 0)  // Ajustado para nueva posición del jugador
    Rotation: (0, 0, 0)
    Scale: (30, 1, 1)
    ```
@@ -319,7 +319,7 @@ Usar el script WallBounce.cs que creamos
 2. **Hacer hijo de "World"**
 3. **Transform**:
    ```
-   Position: (0, -5.5, 0)
+   Position: (0, -5, 0)  // Ajustado para nueva posición del jugador
    Rotation: (0, 0, 0)
    Scale: (30, 1, 1)
    ```

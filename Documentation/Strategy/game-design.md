@@ -62,6 +62,37 @@
 - **Dynamic obstacles**: Generated based on player skill level
 - **Escape mechanisms**: Special bubble combinations to avoid/destroy obstacles
 
+#### Obstacle Patterns & Difficulty Progression
+- **Line Pattern**: Horizontal line of 3 bubbles (easiest)
+- **Column Pattern**: Vertical line of 3 bubbles (medium)
+- **Triangle Pattern**: 6 bubbles in triangle formation (hard)
+- **Square Pattern**: 4-9 bubbles in square formation (hardest)
+
+#### Difficulty Scaling
+- **0.0 - 0.3 (Early Game)**: 80% Line patterns, 20% others - Players learn mechanics
+- **0.3 - 0.7 (Mid Game)**: Equal mix of all patterns - Balanced challenge
+- **0.7 - 1.0 (Late Game)**: 80% complex patterns, 20% simple - Maximum challenge
+- **Difficulty increases**: +0.1 per minute OR based on score (10k points = +1.0)
+
+#### Pattern Behaviors
+- **Static Patterns**: Stay in place
+- **Moving Patterns**: Vertical oscillation (±2 units, 1 unit/sec)
+- **Spawn Distance**: 5-8 units apart (closer as difficulty increases)
+
+#### Future Obstacle Ideas (TODO)
+- **Chasing Obstacles**: 
+  - Spawn from right side of screen moving left
+  - Move faster than player initially to "catch up"
+  - Match player speed when reaching player X position
+  - Accompany player for X seconds (creates tension)
+  - Accelerate left and exit screen after timer expires
+  - Height: Random Y position or predefined "chase lanes"
+  - Examples: Flying enemies, homing missiles, rival bubbles
+- **Benefits**: 
+  - Creates urgency to destroy them before they leave
+  - Adds dynamic element vs static obstacles
+  - Could drop bonus coins when destroyed while accompanying
+
 ## PROGRESSION SYSTEMS
 
 ### Character Upgrades
