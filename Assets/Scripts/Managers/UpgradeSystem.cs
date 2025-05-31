@@ -109,30 +109,69 @@ public class UpgradeSystem : MonoBehaviour
             valuePerLevel = 0.1f // +10% momentum gain per level
         });
         
-        // Coin Magnet Upgrade
+        // Golden Touch Upgrade (Coin Multiplier)
         upgrades.Add(new Upgrade
         {
-            id = "coin_magnet",
-            name = "Coin Magnet",
-            description = "Increase coin collection range",
-            baseCost = 60,
-            costIncrement = 30,
+            id = "golden_touch",
+            name = "Golden Touch",
+            description = "Coin bubbles give +1 extra coin",
+            baseCost = 100,
+            costIncrement = 100,
             currentLevel = 0,
-            maxLevel = 8,
-            valuePerLevel = 0.5f // +0.5 magnet range per level
+            maxLevel = 4,
+            valuePerLevel = 1f // +1 coin per level
         });
         
-        // Starting Combo Upgrade
+        // Bubble Breaker Upgrade (VIP ONLY)
+        upgrades.Add(new Upgrade
+        {
+            id = "bubble_breaker",
+            name = "Bubble Breaker [VIP]",
+            description = "ALL colors break ANY coin bubble",
+            baseCost = 0, // VIP only, not purchasable with coins
+            costIncrement = 0,
+            currentLevel = 0,
+            maxLevel = 1,
+            valuePerLevel = 1f
+        });
+        
+        // Auto Pop Upgrade (Premium)
+        upgrades.Add(new Upgrade
+        {
+            id = "auto_pop",
+            name = "Auto Pop",
+            description = "Coin bubbles pop when you pass below",
+            baseCost = 2000,
+            costIncrement = 0, // One-time purchase
+            currentLevel = 0,
+            maxLevel = 1,
+            valuePerLevel = 1f
+        });
+        
+        // Starting Combo + Time Extension Upgrade
         upgrades.Add(new Upgrade
         {
             id = "start_combo",
             name = "Head Start",
-            description = "Start with combo multiplier",
+            description = "Start with combo + extra time",
             baseCost = 150,
             costIncrement = 75,
             currentLevel = 0,
             maxLevel = 3,
             valuePerLevel = 2f // +2 starting combo per level
+        });
+        
+        // Coin Spawn Rate Upgrade
+        upgrades.Add(new Upgrade
+        {
+            id = "coin_spawn_rate",
+            name = "Lucky Coins",
+            description = "Increase coin spawn chance by +5%",
+            baseCost = 40,
+            costIncrement = 20,
+            currentLevel = 0,
+            maxLevel = 5,
+            valuePerLevel = 0.05f // +5% per level (5% base + 25% max = 30% total)
         });
     }
     
@@ -156,6 +195,31 @@ public class UpgradeSystem : MonoBehaviour
         {
             OnUpgradeFailed?.Invoke("Already at max level!");
             return false;
+        }
+        
+        // Check if this is a VIP-only upgrade
+        if (upgradeId == "bubble_breaker")
+        {
+            // Check if player has VIP
+            bool hasVIP = PlayerPrefs.GetInt("HasVIP", 0) == 1;
+            if (!hasVIP)
+            {
+                OnUpgradeFailed?.Invoke("VIP required! Tap to unlock VIP");
+                return false;
+            }
+            
+            // VIP upgrades are free
+            upgrade.currentLevel++;
+            ApplyUpgrade(upgrade);
+            SaveUpgrades();
+            
+            OnUpgradePurchased?.Invoke(upgrade);
+            
+            if (SimpleSoundManager.Instance != null)
+                SimpleSoundManager.Instance.PlayButtonClick();
+                
+            Debug.Log($"Unlocked VIP upgrade: {upgrade.name}");
+            return true;
         }
         
         int cost = upgrade.GetCost();
@@ -216,10 +280,9 @@ public class UpgradeSystem : MonoBehaviour
                 }
                 break;
                 
-            case "coin_magnet":
-                // This will be applied to coins when they spawn
-                // Store in PlayerPrefs for coins to read
-                PlayerPrefs.SetFloat("CoinMagnetBonus", upgrade.GetCurrentValue());
+            case "golden_touch":
+                // Store golden touch level for coin bubbles to read
+                PlayerPrefs.SetInt("GoldenTouchLevel", upgrade.currentLevel);
                 break;
                 
             case "start_combo":
@@ -227,7 +290,26 @@ public class UpgradeSystem : MonoBehaviour
                 {
                     // Will be applied on game start
                     PlayerPrefs.SetInt("StartingCombo", (int)upgrade.GetCurrentValue());
+                    // Also store timer bonus (30 seconds per level)
+                    PlayerPrefs.SetFloat("HeadStartBonus", upgrade.GetCurrentValue() * 30f);
                 }
+                break;
+                
+            case "bubble_breaker":
+                // Store bubble breaker unlock state (VIP feature)
+                // When active, ALL colors can break ANY coin bubble
+                PlayerPrefs.SetInt("BubbleBreakerUnlocked", upgrade.currentLevel);
+                break;
+                
+            case "auto_pop":
+                // Store auto pop unlock state (0 or 1)
+                PlayerPrefs.SetInt("AutoPopUnlocked", upgrade.currentLevel);
+                break;
+                
+            case "coin_spawn_rate":
+                // Store coin spawn rate bonus for CoinSystem to read
+                // Base 5% + (5% * level) = max 30% at level 5
+                PlayerPrefs.SetFloat("CoinSpawnRateBonus", upgrade.GetCurrentValue());
                 break;
         }
     }

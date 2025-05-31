@@ -6425,11 +6425,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coinPrefab: {fileID: 8693475619738373021, guid: f0d54486db50d6740bf2df66b32950fa, type: 3}
+  coinBubblePrefab: {fileID: 7299092947983839789, guid: e8f75b1b07e3222488418c285963764f, type: 3}
   coinSpawnPoint: {fileID: 1328090453}
-  coinSpawnChance: 0.3
+  coinSpawnChance: 0.05
   minCoinsPerSpawn: 1
   maxCoinsPerSpawn: 3
   coinSpacing: 1
+  useFloatingCoins: 0
   usePatterns: 1
 --- !u!1 &1528554727
 GameObject:
@@ -7455,7 +7457,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   upgradePanel: {fileID: 1721539206}
-  upgradeMenuButton: {fileID: 2070796296}
   closeUpgradeButton: {fileID: 354256004}
   upgradeContainer: {fileID: 414306393}
   upgradeItemPrefab: {fileID: 2730883174596211591, guid: 441845c6c1970b94b8f064e2fb84d948, type: 3}
@@ -8242,7 +8243,6 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
-  upgradeButton: {fileID: 2070796296}
 --- !u!1 &1983406370
 GameObject:
   m_ObjectHideFlags: 0

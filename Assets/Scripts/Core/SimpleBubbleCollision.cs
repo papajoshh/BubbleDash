@@ -90,6 +90,51 @@ public class SimpleBubbleCollision : MonoBehaviour
         hasExploded = true;
     }
     
+    void HandleCoinBubblePop(Vector3 position, Bubble coinBubble)
+    {
+        // Calculate coin value based on Golden Touch upgrade
+        int baseCoinValue = 1;
+        int goldenTouchLevel = PlayerPrefs.GetInt("GoldenTouchLevel", 0);
+        int totalCoins = baseCoinValue + goldenTouchLevel;
+        
+        // Award coins
+        if (CoinSystem.Instance != null)
+        {
+            CoinSystem.Instance.AddCoins(totalCoins);
+        }
+        
+        // Visual effects - golden explosion
+        if (SimpleEffects.Instance != null)
+        {
+            Color goldColor = new Color(1f, 0.8f, 0f, 1f); // Gold color
+            SimpleEffects.Instance.PlayBubblePop(position, goldColor);
+            
+            // Show coin value gained
+            SimpleEffects.Instance.ShowScorePopup(position, totalCoins, Color.yellow);
+        }
+        
+        // Sound effect - coin collection sound
+        if (SimpleSoundManager.Instance != null)
+        {
+            SimpleSoundManager.Instance.PlayCoinCollect();
+        }
+        
+        // Also award score points (coin bubbles give score too)
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.OnBubbleHit(1);
+        }
+        
+        // Update momentum (coin bubbles count as successful hits)
+        MomentumSystem momentum = FindObjectOfType<MomentumSystem>();
+        if (momentum != null)
+        {
+            momentum.OnBubbleHit();
+        }
+        
+        Debug.Log($"Coin bubble popped! Awarded {totalCoins} coins (base: {baseCoinValue} + golden touch: {goldenTouchLevel})");
+    }
+    
     Color GetBubbleColor(BubbleColor bubbleColor)
     {
         switch (bubbleColor)

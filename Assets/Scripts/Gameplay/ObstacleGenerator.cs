@@ -98,9 +98,43 @@ public class ObstacleGenerator : MonoBehaviour
         // Spawn coins near obstacles
         if (CoinSystem.Instance != null)
         {
-            // Spawn coins offset from obstacle
+            // Try different positions to avoid overlap
+            // First try: right side of obstacle
             Vector3 coinPosition = spawnPosition + Vector3.right * 2f;
-            CoinSystem.Instance.SpawnCoinsAtPosition(coinPosition, 1f);
+            
+            // If using coin bubbles, we need more careful placement
+            if (!CoinSystem.Instance.useFloatingCoins)
+            {
+                // Try above the obstacle
+                Vector3 abovePosition = spawnPosition + Vector3.up * 2f;
+                // Try below the obstacle
+                Vector3 belowPosition = spawnPosition + Vector3.down * 2f;
+                // Try further right
+                Vector3 farRightPosition = spawnPosition + Vector3.right * 3.5f;
+                
+                // Randomly choose which position to try first
+                int randomChoice = Random.Range(0, 4);
+                switch (randomChoice)
+                {
+                    case 0:
+                        CoinSystem.Instance.SpawnCoinsAtPosition(coinPosition, 0.5f);
+                        break;
+                    case 1:
+                        CoinSystem.Instance.SpawnCoinsAtPosition(abovePosition, 0.5f);
+                        break;
+                    case 2:
+                        CoinSystem.Instance.SpawnCoinsAtPosition(belowPosition, 0.5f);
+                        break;
+                    case 3:
+                        CoinSystem.Instance.SpawnCoinsAtPosition(farRightPosition, 0.5f);
+                        break;
+                }
+            }
+            else
+            {
+                // Floating coins can overlap more freely
+                CoinSystem.Instance.SpawnCoinsAtPosition(coinPosition, 1f);
+            }
         }
         
         // Update spawn tracking

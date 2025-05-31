@@ -8,7 +8,6 @@ public class UpgradeUI : MonoBehaviour
 {
     [Header("UI Panels")]
     public GameObject upgradePanel;
-    public Button upgradeMenuButton;
     public Button closeUpgradeButton;
     
     [Header("Upgrade Item UI")]
@@ -29,9 +28,6 @@ public class UpgradeUI : MonoBehaviour
         coinSystem = CoinSystem.Instance;
         
         // Setup buttons
-        if (upgradeMenuButton != null)
-            upgradeMenuButton.onClick.AddListener(OpenUpgradeMenu);
-            
         if (closeUpgradeButton != null)
             closeUpgradeButton.onClick.AddListener(CloseUpgradeMenu);
         
@@ -198,7 +194,8 @@ public class UpgradeUI : MonoBehaviour
         itemUI.costText = buttonText;
     }
     
-    public void OpenUpgradeMenu()
+    // Open from main menu (no game pausing needed)
+    public void OpenUpgradeMenuFromMainMenu()
     {
         if (upgradePanel != null)
         {
@@ -207,15 +204,20 @@ public class UpgradeUI : MonoBehaviour
             
             // Animate panel entrance
             upgradePanel.transform.localScale = Vector3.zero;
-            upgradePanel.transform.DOScale(1f, 0.3f).SetEase(Ease.OutBack).SetUpdate(true);
+            upgradePanel.transform.DOScale(1f, 0.3f).SetEase(Ease.OutBack);
             
             // Animate items appearing
             AnimateItemsEntrance();
             
-            // Pause game without showing pause panel
-            if (GameManager.Instance != null)
-                GameManager.Instance.PauseGameSilent();
+            Debug.Log("Opened upgrade menu from main menu");
         }
+    }
+    
+    // Legacy method for compatibility (shouldn't be used in new flow)
+    public void OpenUpgradeMenu()
+    {
+        Debug.LogWarning("OpenUpgradeMenu() called - this should only be used from main menu now");
+        OpenUpgradeMenuFromMainMenu();
     }
     
     public void CloseUpgradeMenu()
@@ -225,13 +227,15 @@ public class UpgradeUI : MonoBehaviour
             // Animate panel exit
             upgradePanel.transform.DOScale(0f, 0.2f)
                 .SetEase(Ease.InBack)
-                .SetUpdate(true)
                 .OnComplete(() => {
                     upgradePanel.SetActive(false);
                     
-                    // Resume game
-                    if (GameManager.Instance != null)
-                        GameManager.Instance.ResumeGame();
+                    // Return to main menu
+                    MainMenuUI mainMenu = FindObjectOfType<MainMenuUI>();
+                    if (mainMenu != null)
+                    {
+                        mainMenu.ShowMainMenu();
+                    }
                 });
         }
     }
@@ -249,8 +253,7 @@ public class UpgradeUI : MonoBehaviour
                 item.transform.localPosition = new Vector3(300f, item.transform.localPosition.y, 0);
                 item.transform.DOLocalMoveX(0f, 0.3f)
                     .SetDelay(0.05f * i)
-                    .SetEase(Ease.OutQuad)
-                    .SetUpdate(true);
+                    .SetEase(Ease.OutQuad);
                 
                 // Fade in
                 CanvasGroup canvasGroup = item.GetComponent<CanvasGroup>();
@@ -258,7 +261,7 @@ public class UpgradeUI : MonoBehaviour
                     canvasGroup = item.AddComponent<CanvasGroup>();
                 
                 canvasGroup.alpha = 0f;
-                canvasGroup.DOFade(1f, 0.3f).SetDelay(0.05f * i).SetUpdate(true);
+                canvasGroup.DOFade(1f, 0.3f).SetDelay(0.05f * i);
             }
         }
     }

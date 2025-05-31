@@ -18,7 +18,7 @@ public class Bubble : MonoBehaviour
     private bool hasCollided = false;
     private float lifetime = 0f;
     
-    // Color sprites (assign these in Unity or load from Resources)
+    // Color sprites - Only 4 colors exist in the game
     [Header("Sprites")]
     public Sprite redBubbleSprite;
     public Sprite blueBubbleSprite;
@@ -143,32 +143,34 @@ public class Bubble : MonoBehaviour
         if (bubbleRenderer == null) return;
         
         Sprite spriteToUse = null;
+        Color colorToUse = Color.white;
         
+        // Normal color-based bubbles (coin bubbles are handled by CoinBubble class)
         switch (bubbleColor)
-        {
-            case BubbleColor.Red:
-                spriteToUse = redBubbleSprite;
-                break;
-            case BubbleColor.Blue:
-                spriteToUse = blueBubbleSprite;
-                break;
-            case BubbleColor.Green:
-                spriteToUse = greenBubbleSprite;
-                break;
-            case BubbleColor.Yellow:
-                spriteToUse = yellowBubbleSprite;
-                break;
-        }
+            {
+                case BubbleColor.Red:
+                    spriteToUse = redBubbleSprite;
+                    break;
+                case BubbleColor.Blue:
+                    spriteToUse = blueBubbleSprite;
+                    break;
+                case BubbleColor.Green:
+                    spriteToUse = greenBubbleSprite;
+                    break;
+                case BubbleColor.Yellow:
+                    spriteToUse = yellowBubbleSprite;
+                    break;
+            }
+            
+        colorToUse = GetColorFromEnum(bubbleColor);
         
         if (spriteToUse != null)
         {
             bubbleRenderer.sprite = spriteToUse;
         }
-        else
-        {
-            // Fallback: just set color tint
-            bubbleRenderer.color = GetColorFromEnum(bubbleColor);
-        }
+        
+        // Apply color tint
+        bubbleRenderer.color = colorToUse;
     }
     
     Color GetColorFromEnum(BubbleColor color)
@@ -223,5 +225,6 @@ public enum BubbleType
     Normal,
     Rainbow,    // Matches any color
     Bomb,       // Destroys area
-    Multiplier  // Score bonus
+    Multiplier, // Score bonus
+    CoinBubble  // Gives coins when popped
 }

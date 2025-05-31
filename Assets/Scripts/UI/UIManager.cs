@@ -30,7 +30,6 @@ public class UIManager : MonoBehaviour
     public GameObject hudPanel;
     public Image speedIndicator;
     public Gradient speedGradient;
-    public Button upgradeButton; // New upgrade button
     
     private ScoreManager scoreManager;
     private GameManager gameManager;
@@ -89,15 +88,6 @@ public class UIManager : MonoBehaviour
             
         if (doubleCoinsButton != null)
             doubleCoinsButton.onClick.AddListener(OnDoubleCoinsClicked);
-            
-        if (upgradeButton != null)
-        {
-            upgradeButton.onClick.AddListener(() => {
-                UpgradeUI upgradeUI = FindObjectOfType<UpgradeUI>(true);
-                if (upgradeUI != null)
-                    upgradeUI.OpenUpgradeMenu();
-            });
-        }
         
         // Initialize UI
         UpdateScoreUI(0);

@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     public System.Action OnGamePause;
     public System.Action OnGameResume;
     public System.Action OnGameOver;
+    public System.Action OnGameOverTimer; // New: Game over by timer
     public System.Action OnGameRestart;
     
     void Awake()
@@ -110,6 +111,12 @@ public class GameManager : MonoBehaviour
         if (UpgradeSystem.Instance != null)
             UpgradeSystem.Instance.ApplyStartingUpgrades();
         
+        // Start timer for roguelite mode
+        if (TimerManager.Instance != null)
+        {
+            TimerManager.Instance.StartTimer();
+        }
+        
         OnGameStart?.Invoke();
         Debug.Log("Game Started!");
     }
@@ -125,7 +132,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("Game Paused");
     }
     
-    // Pause game without triggering UI events (for menus like upgrade)
+    // Pause game without triggering UI events (legacy - now only used for special cases)
     public void PauseGameSilent()
     {
         if (currentState != GameState.Playing) return;
@@ -201,8 +208,37 @@ public class GameManager : MonoBehaviour
             cameraFollow.SnapToTarget();
         }
         
+        // Restart timer for roguelite mode
+        if (TimerManager.Instance != null)
+        {
+            TimerManager.Instance.StartTimer();
+        }
+        
         OnGameRestart?.Invoke();
         Debug.Log("Game Restarted!");
+    }
+    
+    // New: Game Over specifically triggered by timer expiring
+    public void TriggerGameOverTimer()
+    {
+        if (currentState == GameState.GameOver) return;
+        
+        currentState = GameState.GameOver;
+        
+        // Stop player
+        if (player != null)
+        {
+            player.Die();
+        }
+        
+        // Save high score if applicable
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.SaveHighScore();
+        }
+        
+        OnGameOverTimer?.Invoke();
+        Debug.Log("Game Over - Timer Expired!");
     }
     
     public void QuitGame()

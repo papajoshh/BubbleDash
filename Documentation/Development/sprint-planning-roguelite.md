@@ -52,33 +52,36 @@ Como jugador quiero:
 ```
 
 ### Tareas Técnicas
-- [ ] **T1.1**: Crear `TimerSystem.cs`
+- [x] **T1.1**: Crear `TimerManager.cs` ✅
   - Countdown logic (3 minutos base)
   - Integración con GameManager
   - Eventos de tiempo (warnings, game over)
   
-- [ ] **T1.2**: UI del Timer
+- [x] **T1.2**: UI del Timer ✅
   - Visual countdown prominente
-  - Warnings visuales (<30s, <10s)
-  - Efectos de urgencia (pulse, color)
+  - Warnings visuales (<60s, <30s)
+  - Efectos de urgencia (pulse, color, shake)
   
-- [ ] **T1.3**: Sistema de Extensiones
-  - Time pickups (+10s, +20s)
-  - Upgrade integration
-  - Purchase time extension IAP stub
+- [x] **T1.3**: Sistema de Extensiones ✅
+  - Head Start upgrade (+30s por nivel)
+  - Upgrade integration completa
+  - Ready for IAP time extensions
   
-- [ ] **T1.4**: Game Loop Adjustment
-  - Quick restart flow
-  - Run statistics tracking
-  - Death reason: "Time Out"
+- [x] **T1.4**: Game Loop Adjustment ✅
+  - GameOverTimerUI separado
+  - Run statistics tracking preparado
+  - Death reason: "TIME'S UP!"
 
 ### Definition of Done
-- [ ] Timer visible y funcionando
-- [ ] Game over por tiempo
-- [ ] Al menos 1 forma de extender tiempo
-- [ ] Restart en <3 segundos
+- [x] Timer visible y funcionando ✅
+- [x] Game over por tiempo ✅
+- [x] Al menos 1 forma de extender tiempo ✅
+- [x] Restart en <3 segundos ✅
 
-### Estimación: 4-6 horas de desarrollo
+### ✅ STATUS: COMPLETADO
+**Tiempo real**: ~3 horas de desarrollo  
+**Archivos creados**: TimerManager.cs, TimerUI.cs, GameOverTimerUI.cs  
+**Documentación**: sprint1-autonomous-decisions.md, timer-system-unity-setup.md
 
 ---
 

@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
 
 public class MomentumSystem : MonoBehaviour
 {
+    public static MomentumSystem Instance { get; private set; }
     [Header("Momentum Settings")]
     public float baseSpeed = 3f;
     public float speedIncrement = 0.2f;
@@ -18,7 +20,12 @@ public class MomentumSystem : MonoBehaviour
     private float currentSpeedMultiplier = 1f;
     
     public float CurrentSpeed => baseSpeed * currentSpeedMultiplier;
-    
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     void Start()
     {
         playerController = GetComponent<PlayerController>();
