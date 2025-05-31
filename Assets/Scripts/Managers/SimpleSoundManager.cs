@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 public class SimpleSoundManager : MonoBehaviour
@@ -76,7 +77,7 @@ public class SimpleSoundManager : MonoBehaviour
     // Main play method with anti-spam
     void PlaySound(AudioClip clip, float volumeScale = 1f, string soundKey = "")
     {
-        if (!soundEnabled || clip == null || effectsSource == null) return;
+        if (!soundEnabled || effectsSource == null) return;
         
         // Anti-spam check
         if (!string.IsNullOrEmpty(soundKey))
@@ -89,8 +90,84 @@ public class SimpleSoundManager : MonoBehaviour
             lastPlayedTimes[soundKey] = Time.time;
         }
         
+        // If we have a clip, play it
+        if (clip != null)
+        {
+            float finalVolume = masterVolume * effectsVolume * volumeScale;
+            effectsSource.PlayOneShot(clip, finalVolume);
+        }
+        else
+        {
+            // Fallback to procedural sound based on soundKey
+            GenerateProceduralSound(soundKey, volumeScale);
+        }
+    }
+    
+    // Generate procedural sounds when clips are missing
+    void GenerateProceduralSound(string soundKey, float volumeScale)
+    {
+        float frequency = 440f; // Default A4 note
+        float duration = 0.1f;
+        
+        switch (soundKey)
+        {
+            case "shoot":
+                frequency = 300f;
+                duration = 0.05f;
+                break;
+            case "pop":
+                frequency = 800f;
+                duration = 0.08f;
+                break;
+            case "coin":
+                frequency = 1200f;
+                duration = 0.15f;
+                break;
+            case "gameover":
+                frequency = 200f;
+                duration = 0.3f;
+                break;
+            default:
+                frequency = 500f;
+                duration = 0.1f;
+                break;
+        }
+        
+        // Create a simple beep sound
+        StartCoroutine(PlayTone(frequency, duration, volumeScale));
+    }
+    
+    // Coroutine to play a procedural tone
+    System.Collections.IEnumerator PlayTone(float frequency, float duration, float volumeScale)
+    {
+        float sampleRate = 44100f;
+        int sampleLength = Mathf.CeilToInt(sampleRate * duration);
+        float[] samples = new float[sampleLength];
+        
+        // Generate sine wave
+        for (int i = 0; i < sampleLength; i++)
+        {
+            float t = i / sampleRate;
+            samples[i] = Mathf.Sin(2f * Mathf.PI * frequency * t);
+            
+            // Apply envelope to avoid clicks
+            float envelope = 1f;
+            if (i < sampleLength * 0.1f) // Attack
+                envelope = i / (sampleLength * 0.1f);
+            else if (i > sampleLength * 0.9f) // Release
+                envelope = (sampleLength - i) / (sampleLength * 0.1f);
+                
+            samples[i] *= envelope;
+        }
+        
+        // Create and play AudioClip
+        AudioClip proceduralClip = AudioClip.Create("ProceduralTone", sampleLength, 1, (int)sampleRate, false);
+        proceduralClip.SetData(samples, 0);
+        
         float finalVolume = masterVolume * effectsVolume * volumeScale;
-        effectsSource.PlayOneShot(clip, finalVolume);
+        effectsSource.PlayOneShot(proceduralClip, finalVolume);
+        
+        yield return new WaitForSeconds(duration);
     }
     
     // Specific sound methods

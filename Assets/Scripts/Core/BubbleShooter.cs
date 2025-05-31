@@ -8,6 +8,7 @@ public class BubbleShooter : MonoBehaviour
     public Transform shootPoint;
     public float shootForce = 25f; // Aumentado de 10 a 25
     public float bubbleScale = 0.5f; // Escala para burbujas más pequeñas
+    public float shootCooldown = 0.2f; // Time between shots
     public LineRenderer trajectoryLine;
     
     [Header("Aiming")]
@@ -197,7 +198,7 @@ public class BubbleShooter : MonoBehaviour
         }
         
         // Prepare next bubble
-        Invoke(nameof(EnableShooting), 0.5f);
+        Invoke(nameof(EnableShooting), shootCooldown);
         GenerateNextBubble();
     }
     
