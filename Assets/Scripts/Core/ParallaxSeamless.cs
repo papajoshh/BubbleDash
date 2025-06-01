@@ -24,6 +24,7 @@ public class ParallaxSeamless : MonoBehaviour
     private Vector3 startCameraPos;
     private float sprite1StartX;
     private float sprite2StartX;
+    private Vector3 originalPosition; // Store the original position
     
     void Start()
     {
@@ -48,6 +49,9 @@ public class ParallaxSeamless : MonoBehaviour
         {
             startCameraPos = cameraTransform.position;
         }
+        
+        // Store original position
+        originalPosition = transform.position;
         
         CreateDoubleSprites();
     }
@@ -153,17 +157,20 @@ public class ParallaxSeamless : MonoBehaviour
     {
         if (cameraTransform == null) return;
         
+        // Reset transform to original position
+        transform.position = originalPosition;
+        
         // Reset camera position reference
         startCameraPos = cameraTransform.position;
         
         // Reset sprite positions to their initial arrangement
-        sprite1StartX = transform.position.x;
+        sprite1StartX = originalPosition.x;
         sprite2StartX = sprite1StartX + spriteWidth;
         
         if (sprite1 != null)
-            sprite1.transform.position = new Vector3(sprite1StartX, sprite1.transform.position.y, sprite1.transform.position.z);
+            sprite1.transform.position = new Vector3(sprite1StartX, originalPosition.y, originalPosition.z);
         if (sprite2 != null)
-            sprite2.transform.position = new Vector3(sprite2StartX, sprite2.transform.position.y, sprite2.transform.position.z);
+            sprite2.transform.position = new Vector3(sprite2StartX, originalPosition.y, originalPosition.z);
             
     }
 }

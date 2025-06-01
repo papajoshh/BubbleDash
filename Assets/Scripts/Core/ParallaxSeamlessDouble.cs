@@ -25,6 +25,7 @@ public class ParallaxSeamlessDouble : MonoBehaviour
     
     private Vector3 startCameraPos;
     private float spriteWidth;
+    private Vector3 originalPosition;
     
     void Start()
     {
@@ -41,6 +42,9 @@ public class ParallaxSeamlessDouble : MonoBehaviour
         {
             startCameraPos = cameraTransform.position;
         }
+        
+        // Store original position
+        originalPosition = transform.position;
         
         spriteWidth = spriteSize.x;
         CreateDoubleSprites();
@@ -145,5 +149,22 @@ public class ParallaxSeamlessDouble : MonoBehaviour
         spriteWidth = size.x;
         if (rendererA != null) rendererA.size = size;
         if (rendererB != null) rendererB.size = size;
+    }
+    
+    public void ResetPosition()
+    {
+        if (cameraTransform == null) return;
+        
+        // Reset transform to original position
+        transform.position = originalPosition;
+        
+        // Reset camera position reference
+        startCameraPos = cameraTransform.position;
+        
+        // Reset sprite positions
+        if (spriteA != null)
+            spriteA.transform.position = originalPosition;
+        if (spriteB != null)
+            spriteB.transform.position = new Vector3(originalPosition.x + spriteWidth, originalPosition.y, originalPosition.z);
     }
 }

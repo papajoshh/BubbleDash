@@ -9770,7 +9770,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79af6a60d1ea9bc448cce4feb8ad2c88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseDurationSeconds: 10
+  baseDurationSeconds: 30
   enableTimer: 1
   pauseTimerOnGamePause: 1
   urgentWarningTime: 10

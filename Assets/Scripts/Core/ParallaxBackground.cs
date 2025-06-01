@@ -23,6 +23,7 @@ public class ParallaxBackground : MonoBehaviour
     
     private Vector3 startCameraPos;
     private Vector3 startBackgroundPos;
+    private Vector3 originalBackgroundPos; // The actual initial position
     private float textureUnitSizeX;
     
     void Start()
@@ -51,6 +52,7 @@ public class ParallaxBackground : MonoBehaviour
             startCameraPos = cameraTransform.position;
         }
         startBackgroundPos = transform.position;
+        originalBackgroundPos = transform.position; // Save the actual starting position
         
         // Calculate texture unit size for infinite scrolling
         textureUnitSizeX = backgroundWidth;
@@ -132,10 +134,14 @@ public class ParallaxBackground : MonoBehaviour
     // Method to reset position (useful for game restart)
     public void ResetPosition()
     {
+        // Reset the background to its original position
+        transform.position = originalBackgroundPos;
+        
+        // Reset the reference positions
         if (cameraTransform != null)
         {
             startCameraPos = cameraTransform.position;
         }
-        startBackgroundPos = transform.position;
+        startBackgroundPos = originalBackgroundPos;
     }
 }

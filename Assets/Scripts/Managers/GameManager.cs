@@ -271,6 +271,12 @@ public class GameManager : MonoBehaviour
             parallax.ResetPosition();
         }
         
+        ParallaxSeamlessDouble[] parallaxSeamlessDouble = FindObjectsOfType<ParallaxSeamlessDouble>();
+        foreach (var parallax in parallaxSeamlessDouble)
+        {
+            parallax.ResetPosition();
+        }
+        
         FollowCamera[] followCameras = FindObjectsOfType<FollowCamera>();
         foreach (var followCam in followCameras)
         {
