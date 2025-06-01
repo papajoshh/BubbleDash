@@ -56,10 +56,11 @@ public class UpgradeSystemHelper : MonoBehaviour
             TestPurchaseUpgrade("start_combo");
         }
         
-        // Reset all upgrades
+        // Reset all upgrades and game state
         if (Input.GetKeyDown(KeyCode.R) && Input.GetKey(KeyCode.LeftShift))
         {
             ResetAllUpgrades();
+            ResetGameState();
         }
         
         // Show upgrade status
@@ -176,6 +177,28 @@ public class UpgradeSystemHelper : MonoBehaviour
         }
     }
     
+    [ContextMenu("Reset Game State")]
+    public void ResetGameState()
+    {
+        if (GameManager.Instance != null)
+        {
+            // Go to menu state first to stop any ongoing game
+            GameManager.Instance.GoToMainMenu();
+            
+            // Show main menu UI
+            if (MainMenuUI.Instance != null)
+            {
+                MainMenuUI.Instance.ShowMainMenu();
+            }
+            
+            Debug.Log("Game state reset to menu");
+        }
+        else
+        {
+            Debug.LogWarning("GameManager instance not found!");
+        }
+    }
+    
     [ContextMenu("Max All Upgrades (Cheat)")]
     public void MaxAllUpgrades()
     {
@@ -213,7 +236,7 @@ public class UpgradeSystemHelper : MonoBehaviour
         GUILayout.Label("Test Controls:");
         GUILayout.Label("C - Add 100 coins");
         GUILayout.Label("1-5 - Buy upgrades");
-        GUILayout.Label("Shift+R - Reset upgrades");
+        GUILayout.Label("Shift+R - Reset upgrades & game");
         GUILayout.Label("I - Show status");
         
         GUILayout.EndArea();

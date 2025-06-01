@@ -148,4 +148,22 @@ public class ParallaxSeamless : MonoBehaviour
         if (renderer1 != null) renderer1.size = size;
         if (renderer2 != null) renderer2.size = size;
     }
+    
+    public void ResetPosition()
+    {
+        if (cameraTransform == null) return;
+        
+        // Reset camera position reference
+        startCameraPos = cameraTransform.position;
+        
+        // Reset sprite positions to their initial arrangement
+        sprite1StartX = transform.position.x;
+        sprite2StartX = sprite1StartX + spriteWidth;
+        
+        if (sprite1 != null)
+            sprite1.transform.position = new Vector3(sprite1StartX, sprite1.transform.position.y, sprite1.transform.position.z);
+        if (sprite2 != null)
+            sprite2.transform.position = new Vector3(sprite2StartX, sprite2.transform.position.y, sprite2.transform.position.z);
+            
+    }
 }

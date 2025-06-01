@@ -5,6 +5,7 @@ using DG.Tweening;
 
 public class MainMenuUI : MonoBehaviour
 {
+    public static MainMenuUI Instance { get; private set; }
     [Header("Main Menu Panel")]
     public GameObject mainMenuPanel;
     
@@ -29,6 +30,16 @@ public class MainMenuUI : MonoBehaviour
     
     void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+        
         // Setup button listeners
         if (startGameButton != null)
             startGameButton.onClick.AddListener(StartGame);

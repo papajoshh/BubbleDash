@@ -1,9 +1,15 @@
 using UnityEngine;
 
-public class CoinBubble : MonoBehaviour
+public class CoinBubble : MonoBehaviour, IBubble
 {
     [Header("Bubble Properties")]
     public BubbleColor bubbleColor = BubbleColor.Yellow;
+    
+    // IBubble implementation
+    public BubbleColor GetBubbleColor()
+    {
+        return bubbleColor;
+    }
     public bool randomizeColor = true;
     
     [Header("Coin Settings")]
@@ -205,54 +211,7 @@ public class CoinBubble : MonoBehaviour
         Destroy(gameObject);
     }
     
-    // Called when hit by a player bubble
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        // Check if hit by a player bubble
-        Bubble playerBubble = collision.gameObject.GetComponent<Bubble>();
-        if (playerBubble != null)
-        {
-            // Check for color match (unless we have a special "breaks all" upgrade later)
-            bool canBreak = false;
-            
-            // Check if colors match
-            if (playerBubble.bubbleColor == this.bubbleColor)
-            {
-                canBreak = true;
-            }
-            
-            // Bubble Breaker upgrade - VIP feature that allows ANY color to break coin bubbles
-            bool hasBubbleBreaker = PlayerPrefs.GetInt("BubbleBreakerUnlocked", 0) == 1;
-            if (hasBubbleBreaker && !canBreak)
-            {
-                canBreak = true; // VIP players can use ANY color to break coin bubbles
-            }
-            
-            if (canBreak)
-            {
-                PopCoinBubble();
-                
-                // Also destroy the player bubble
-                playerBubble.DestroyBubble();
-            }
-            else
-            {
-                // Wrong color - just destroy the player bubble (miss)
-                playerBubble.DestroyBubble();
-                
-                // Play miss effect
-                if (SimpleEffects.Instance != null)
-                {
-                    SimpleEffects.Instance.PlayMissEffect(collision.contacts[0].point);
-                }
-                
-                if (SimpleSoundManager.Instance != null)
-                {
-                    SimpleSoundManager.Instance.PlayBubbleMiss();
-                }
-            }
-        }
-    }
+    // All collision handling is now done by SimpleBubbleCollision on the shooting bubble
     
     // Visual indicator in editor
     void OnDrawGizmosSelected()

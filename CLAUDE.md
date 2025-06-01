@@ -228,6 +228,8 @@ Track what's been done by Claude (code) vs User (Unity setup)
 - **31 DIC 2024**: Sprint 1 code complete, Unity setup pending
 - **Coin Bubbles**: Code updated (VIP Bubble Breaker, overlap detection)
 - **Lucky Coins Upgrade**: Added (5% → 30% spawn rate progression)
+- **Game Over UI**: Unified to GameOverTimerUI (removed obsolete UIManager Game Over code)
+- **Code Cleanup**: Removed obsolete Game Over functionality from UIManager
 
 ---
 **Last Updated**: 2024-12-31

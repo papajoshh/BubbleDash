@@ -1,9 +1,15 @@
 using UnityEngine;
 
-public class Bubble : MonoBehaviour
+public class ShootingBubble : MonoBehaviour, IBubble
 {
     [Header("Bubble Properties")]
     public BubbleColor bubbleColor = BubbleColor.Red;
+    
+    // IBubble implementation
+    public BubbleColor GetBubbleColor()
+    {
+        return bubbleColor;
+    }
     public BubbleType bubbleType = BubbleType.Normal;
     
     [Header("Physics")]
@@ -14,8 +20,6 @@ public class Bubble : MonoBehaviour
     [Header("Visual")]
     public SpriteRenderer bubbleRenderer;
     
-    private Rigidbody2D rb;
-    private bool hasCollided = false;
     private float lifetime = 0f;
     
     // Color sprites - Only 4 colors exist in the game
@@ -27,9 +31,6 @@ public class Bubble : MonoBehaviour
     
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        // Don't add Rigidbody2D automatically - let BubbleShooter handle it
-        
         if (bubbleRenderer == null)
         {
             bubbleRenderer = GetComponent<SpriteRenderer>();
@@ -73,69 +74,7 @@ public class Bubble : MonoBehaviour
                 DestroyBubble();
                 return;
             }
-        }
-        
-        // For endless runner, bubbles shouldn't stop - they should keep moving or be destroyed
-        // Remove the velocity check since we want bubbles to keep moving
-    }
-    
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (hasCollided) return;
-        
-        Bubble otherBubble = collision.gameObject.GetComponent<Bubble>();
-        if (otherBubble != null)
-        {
-            OnBubbleCollision(otherBubble);
-        }
-        else
-        {
-            // Hit wall or obstacle
-            OnWallCollision();
-        }
-    }
-    
-    void OnBubbleCollision(Bubble otherBubble)
-    {
-        hasCollided = true;
-        
-        // Stop physics movement
-        if (rb != null)
-        {
-            rb.velocity = Vector2.zero;
-            rb.isKinematic = true;
-        }
-        
-        // Check for matches
-        if (BubbleManager.Instance != null)
-        {
-            BubbleManager.Instance.CheckForMatches(this);
-        }
-    }
-    
-    void OnWallCollision()
-    {
-        // In new design, bubbles are destroyed when hitting walls
-        hasCollided = true;
-        
-        // Create small puff effect
-        if (SimpleEffects.Instance != null)
-        {
-            SimpleEffects.Instance.PlayMissEffect(transform.position);
-        }
-        
-        // Destroy the bubble
-        DestroyBubble();
-    }
-    
-    void OnBubbleSettled()
-    {
-        // In endless runner, bubbles shouldn't settle - they should be destroyed
-        // This method is kept for compatibility but bubbles are destroyed instead
-        hasCollided = true;
-        
-        // Destroy bubble that has settled (stopped moving)
-        DestroyBubble();
+        } 
     }
     
     void UpdateAppearance()

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3603217606407123342}
   - component: {fileID: 3548293035944206502}
   - component: {fileID: 6148070560970544828}
-  - component: {fileID: 3593189395816493946}
+  - component: {fileID: 2742455569522603514}
   m_Layer: 0
   m_Name: BubbleShootPrefab
   m_TagString: Untagged
@@ -149,7 +149,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 0
---- !u!114 &3593189395816493946
+--- !u!114 &2742455569522603514
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -158,7 +158,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3813078946179481001}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a4da4b635e479a4db1856b81bd2fc3f, type: 3}
+  m_Script: {fileID: 11500000, guid: 8a74894daa2c0eb47b55ee1f522ff17f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   bubbleColor: 0

@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class SimpleBubbleCollision : MonoBehaviour
 {
-    private Bubble myBubble;
+    private ShootingBubble myBubble;
     private bool hasExploded = false;
     
     void Start()
     {
-        myBubble = GetComponent<Bubble>();
+        myBubble = GetComponent<ShootingBubble>();
     }
     
     void OnCollisionEnter2D(Collision2D collision)
@@ -15,20 +15,50 @@ public class SimpleBubbleCollision : MonoBehaviour
         // Prevent multiple explosions
         if (hasExploded) return;
         
-        // Check if we hit another bubble
-        Bubble otherBubble = collision.gameObject.GetComponent<Bubble>();
-        if (otherBubble == null) return;
+        // Check if we hit any bubble type (using IBubble interface)
+        IBubble otherBubble = collision.gameObject.GetComponent<IBubble>();
+        if (otherBubble == null) 
+        {
+            // Hit a wall or obstacle - destroy the bubble
+            OnWallCollision(collision);
+            return;
+        }
+        
+        // Now handle specific bubble types
+        StaticBubble staticBubble = otherBubble as StaticBubble;
+        CoinBubble coinBubble = otherBubble as CoinBubble;
         
         // Create collision point for effects
         Vector3 collisionPoint = collision.contacts[0].point;
         
+        // Handle StaticBubble collision
+        if (staticBubble != null)
+        {
+            HandleStaticBubbleCollision(staticBubble, collisionPoint);
+            return;
+        }
+        
+        // Handle CoinBubble collision
+        if (coinBubble != null)
+        {
+            HandleCoinBubbleCollision(coinBubble, collisionPoint);
+            return;
+        }
+    }
+    
+    public void SetExploded()
+    {
+        hasExploded = true;
+    }
+    
+    void HandleStaticBubbleCollision(StaticBubble staticBubble, Vector3 collisionPoint)
+    {
+        hasExploded = true;
+        
         // Check if same color
-        if (myBubble != null && otherBubble.bubbleColor == myBubble.bubbleColor)
+        if (myBubble != null && staticBubble.bubbleColor == myBubble.bubbleColor)
         {
             // SAME COLOR - Successful hit!
-            hasExploded = true;
-            otherBubble.GetComponent<SimpleBubbleCollision>()?.SetExploded();
-            
             // Get bubble color for effects
             Color effectColor = GetBubbleColor(myBubble.bubbleColor);
             
@@ -58,19 +88,22 @@ public class SimpleBubbleCollision : MonoBehaviour
                 momentum.OnBubbleHit();
             }
             
+            // Update run statistics
+            if (RunStatsManager.Instance != null)
+            {
+                RunStatsManager.Instance.OnBubblesPopped(2); // Both bubbles pop
+            }
+            
             // Destroy both bubbles
-            Destroy(otherBubble.gameObject);
+            Destroy(staticBubble.gameObject);
             Destroy(gameObject);
         }
         else
         {
             // DIFFERENT COLOR - Miss!
-            hasExploded = true;
-            
             // Visual effects - subtle puff
             if (SimpleEffects.Instance != null)
             {
-                // Gray/white puff effect for miss
                 SimpleEffects.Instance.PlayMissEffect(collisionPoint);
             }
             
@@ -85,54 +118,70 @@ public class SimpleBubbleCollision : MonoBehaviour
         }
     }
     
-    public void SetExploded()
+    void HandleCoinBubbleCollision(CoinBubble coinBubble, Vector3 collisionPoint)
     {
         hasExploded = true;
+        
+        // Check if colors match or if player has Bubble Breaker upgrade
+        bool canBreak = false;
+        
+        if (myBubble != null && coinBubble.bubbleColor == myBubble.bubbleColor)
+        {
+            canBreak = true;
+        }
+        
+        // Bubble Breaker upgrade - VIP feature
+        bool hasBubbleBreaker = PlayerPrefs.GetInt("BubbleBreakerUnlocked", 0) == 1;
+        if (hasBubbleBreaker)
+        {
+            canBreak = true; // VIP players can use ANY color
+        }
+        
+        if (canBreak)
+        {
+            // Pop the coin bubble!
+            coinBubble.PopCoinBubble();
+            
+            // Destroy the shooting bubble
+            Destroy(gameObject);
+        }
+        else
+        {
+            // Wrong color - miss
+            if (SimpleEffects.Instance != null)
+            {
+                SimpleEffects.Instance.PlayMissEffect(collisionPoint);
+            }
+            
+            if (SimpleSoundManager.Instance != null)
+            {
+                SimpleSoundManager.Instance.PlayBubbleMiss();
+            }
+            
+            // Just destroy the projectile bubble
+            Destroy(gameObject);
+        }
     }
     
-    void HandleCoinBubblePop(Vector3 position, Bubble coinBubble)
+    void OnWallCollision(Collision2D collision)
     {
-        // Calculate coin value based on Golden Touch upgrade
-        int baseCoinValue = 1;
-        int goldenTouchLevel = PlayerPrefs.GetInt("GoldenTouchLevel", 0);
-        int totalCoins = baseCoinValue + goldenTouchLevel;
+        hasExploded = true;
         
-        // Award coins
-        if (CoinSystem.Instance != null)
-        {
-            CoinSystem.Instance.AddCoins(totalCoins);
-        }
-        
-        // Visual effects - golden explosion
+        // Create small puff effect
         if (SimpleEffects.Instance != null)
         {
-            Color goldColor = new Color(1f, 0.8f, 0f, 1f); // Gold color
-            SimpleEffects.Instance.PlayBubblePop(position, goldColor);
-            
-            // Show coin value gained
-            SimpleEffects.Instance.ShowScorePopup(position, totalCoins, Color.yellow);
+            Vector3 collisionPoint = collision.contacts[0].point;
+            SimpleEffects.Instance.PlayMissEffect(collisionPoint);
         }
         
-        // Sound effect - coin collection sound
+        // Play miss sound
         if (SimpleSoundManager.Instance != null)
         {
-            SimpleSoundManager.Instance.PlayCoinCollect();
+            SimpleSoundManager.Instance.PlayBubbleMiss();
         }
         
-        // Also award score points (coin bubbles give score too)
-        if (ScoreManager.Instance != null)
-        {
-            ScoreManager.Instance.OnBubbleHit(1);
-        }
-        
-        // Update momentum (coin bubbles count as successful hits)
-        MomentumSystem momentum = FindObjectOfType<MomentumSystem>();
-        if (momentum != null)
-        {
-            momentum.OnBubbleHit();
-        }
-        
-        Debug.Log($"Coin bubble popped! Awarded {totalCoins} coins (base: {baseCoinValue} + golden touch: {goldenTouchLevel})");
+        // Destroy the bubble
+        Destroy(gameObject);
     }
     
     Color GetBubbleColor(BubbleColor bubbleColor)

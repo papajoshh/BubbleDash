@@ -173,10 +173,17 @@ public class BubbleShooter : MonoBehaviour
         bubble.transform.localScale = Vector3.one * bubbleScale;
         
         // Set bubble color
-        Bubble bubbleComponent = bubble.GetComponent<Bubble>();
+        ShootingBubble bubbleComponent = bubble.GetComponent<ShootingBubble>();
         if (bubbleComponent != null)
         {
             bubbleComponent.SetColor(nextBubbleColor);
+        }
+        
+        // Add collision handler if not present
+        SimpleBubbleCollision collisionHandler = bubble.GetComponent<SimpleBubbleCollision>();
+        if (collisionHandler == null)
+        {
+            bubble.AddComponent<SimpleBubbleCollision>();
         }
         
         // Add physics

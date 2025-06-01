@@ -7,7 +7,8 @@ public class TimerUI : MonoBehaviour
 {
     [Header("Timer Display")]
     public TextMeshProUGUI timerText;
-    public Image timerFillBar; // Optional circular fill or bar
+    public Image timerFillBar; // Optional circular fill or bar (use Fill Image from Slider)
+    public Slider timerSlider; // Alternative: use entire Slider component
     public GameObject timerContainer;
     
     [Header("Visual States")]
@@ -60,11 +61,17 @@ public class TimerUI : MonoBehaviour
             timerText.text = TimerManager.Instance.GetFormattedTime();
         }
         
-        // Update fill bar
+        // Update fill bar (Image) or slider
+        float progress = 1f - (timeRemaining / TimerManager.Instance.GetTotalDuration());
+        
         if (timerFillBar != null)
         {
-            float progress = 1f - (timeRemaining / TimerManager.Instance.GetTotalDuration());
             timerFillBar.fillAmount = progress;
+        }
+        
+        if (timerSlider != null)
+        {
+            timerSlider.value = progress;
         }
         
         // Update visual state based on time remaining
@@ -111,6 +118,12 @@ public class TimerUI : MonoBehaviour
             timerFillBar.color = normalColor;
         }
         
+        if (timerSlider != null)
+        {
+            Image fillImage = timerSlider.fillRect?.GetComponent<Image>();
+            if (fillImage != null) fillImage.color = normalColor;
+        }
+        
         // Reset scale
         if (timerText != null)
         {
@@ -137,6 +150,12 @@ public class TimerUI : MonoBehaviour
             timerFillBar.color = warningColor;
         }
         
+        if (timerSlider != null)
+        {
+            Image fillImage = timerSlider.fillRect?.GetComponent<Image>();
+            if (fillImage != null) fillImage.color = warningColor;
+        }
+        
         // Start gentle pulse
         if (enablePulseAnimation && timerText != null)
         {
@@ -161,6 +180,12 @@ public class TimerUI : MonoBehaviour
         if (timerFillBar != null)
         {
             timerFillBar.color = urgentColor;
+        }
+        
+        if (timerSlider != null)
+        {
+            Image fillImage = timerSlider.fillRect?.GetComponent<Image>();
+            if (fillImage != null) fillImage.color = urgentColor;
         }
         
         // Start fast pulse and shake

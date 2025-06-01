@@ -12,15 +12,6 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI comboText;
     public TextMeshProUGUI coinText;
     
-    [Header("Game Over UI")]
-    public GameObject gameOverPanel;
-    public TextMeshProUGUI finalScoreText;
-    public TextMeshProUGUI newHighScoreText;
-    public Button restartButton;
-    public Button quitButton;
-    public Button doubleCoinsButton;
-    public TextMeshProUGUI coinsEarnedText;
-    
     [Header("Pause UI")]
     public GameObject pausePanel;
     public Button resumeButton;
@@ -46,17 +37,15 @@ public class UIManager : MonoBehaviour
         if (scoreManager != null)
         {
             scoreManager.OnScoreChanged += UpdateScoreUI;
-            scoreManager.OnNewHighScore += OnNewHighScore;
             scoreManager.OnDistanceChanged += UpdateDistanceUI;
         }
         
         if (gameManager != null)
         {
             gameManager.OnGameStart += OnGameStart;
-            gameManager.OnGameOver += OnGameOver;
             gameManager.OnGamePause += OnGamePause;
             gameManager.OnGameResume += OnGameResume;
-            gameManager.OnGameRestart += OnGameStart; // Use same method for restart
+            gameManager.OnGameRestart += OnGameStart;
         }
         
         // Subscribe to coin events
@@ -67,31 +56,14 @@ public class UIManager : MonoBehaviour
         }
         
         // Setup buttons
-        if (restartButton != null)
-            restartButton.onClick.AddListener(() => {
-                gameManager.RestartGame();
-                // Show interstitial ad if appropriate
-                if (AdManager.Instance != null && AdManager.Instance.ShouldShowInterstitial())
-                {
-                    AdManager.Instance.ShowInterstitialAd();
-                }
-            });
-            
-        if (quitButton != null)
-            quitButton.onClick.AddListener(() => gameManager.QuitGame());
-            
         if (resumeButton != null)
             resumeButton.onClick.AddListener(() => gameManager.ResumeGame());
             
         if (pauseQuitButton != null)
             pauseQuitButton.onClick.AddListener(() => gameManager.QuitGame());
             
-        if (doubleCoinsButton != null)
-            doubleCoinsButton.onClick.AddListener(OnDoubleCoinsClicked);
-        
         // Initialize UI
         UpdateScoreUI(0);
-        if (gameOverPanel != null) gameOverPanel.SetActive(false);
         if (pausePanel != null) pausePanel.SetActive(false);
     }
     
@@ -154,71 +126,9 @@ public class UIManager : MonoBehaviour
     void OnGameStart()
     {
         if (hudPanel != null) hudPanel.SetActive(true);
-        if (gameOverPanel != null) gameOverPanel.SetActive(false);
         if (pausePanel != null) pausePanel.SetActive(false);
-        
-        // Reset double coins button for next game
-        if (doubleCoinsButton != null)
-            doubleCoinsButton.gameObject.SetActive(true);
-        
-        // Hide new high score text
-        if (newHighScoreText != null)
-            newHighScoreText.gameObject.SetActive(false);
     }
     
-    void OnGameOver()
-    {
-        if (gameOverPanel != null)
-        {
-            gameOverPanel.SetActive(true);
-            
-            // Animate panel entrance
-            gameOverPanel.transform.localScale = Vector3.zero;
-            gameOverPanel.transform.DOScale(1f, 0.5f).SetEase(Ease.OutBack);
-            
-            if (finalScoreText != null && scoreManager != null)
-            {
-                int finalScore = scoreManager.GetCurrentScore();
-                finalScoreText.text = $"Final Score: {finalScore:N0}";
-                
-                // Animate score counting
-                int displayScore = 0;
-                DOTween.To(() => displayScore, x => displayScore = x, finalScore, 1f)
-                    .SetEase(Ease.OutQuad)
-                    .OnUpdate(() => {
-                        finalScoreText.text = $"Final Score: {displayScore:N0}";
-                    });
-            }
-                
-            // Calculate coins earned (simplified: 1 coin per 100 points)
-            int coinsEarned = scoreManager.GetCurrentScore() / 100;
-            if (coinsEarnedText != null)
-            {
-                coinsEarnedText.text = $"Coins Earned: {coinsEarned}";
-                
-                // Pulse animation for coins
-                coinsEarnedText.transform.DOScale(1.2f, 0.5f)
-                    .SetLoops(2, LoopType.Yoyo)
-                    .SetDelay(0.5f);
-            }
-                
-            // Show double coins button if ad is available
-            if (doubleCoinsButton != null && AdManager.Instance != null)
-            {
-                bool adAvailable = AdManager.Instance.IsRewardedAdReady();
-                doubleCoinsButton.gameObject.SetActive(adAvailable);
-                
-                if (adAvailable)
-                {
-                    // Animate ad button
-                    doubleCoinsButton.transform.localScale = Vector3.zero;
-                    doubleCoinsButton.transform.DOScale(1f, 0.3f)
-                        .SetDelay(0.8f)
-                        .SetEase(Ease.OutBack);
-                }
-            }
-        }
-    }
     
     void OnGamePause()
     {
@@ -232,14 +142,6 @@ public class UIManager : MonoBehaviour
             pausePanel.SetActive(false);
     }
     
-    void OnNewHighScore(int score)
-    {
-        if (newHighScoreText != null)
-        {
-            newHighScoreText.text = "NEW HIGH SCORE!";
-            newHighScoreText.gameObject.SetActive(true);
-        }
-    }
     
     void OnDestroy()
     {
@@ -247,14 +149,12 @@ public class UIManager : MonoBehaviour
         if (scoreManager != null)
         {
             scoreManager.OnScoreChanged -= UpdateScoreUI;
-            scoreManager.OnNewHighScore -= OnNewHighScore;
             scoreManager.OnDistanceChanged -= UpdateDistanceUI;
         }
         
         if (gameManager != null)
         {
             gameManager.OnGameStart -= OnGameStart;
-            gameManager.OnGameOver -= OnGameOver;
             gameManager.OnGamePause -= OnGamePause;
             gameManager.OnGameResume -= OnGameResume;
             gameManager.OnGameRestart -= OnGameStart;
@@ -266,30 +166,4 @@ public class UIManager : MonoBehaviour
         }
     }
     
-    void OnDoubleCoinsClicked()
-    {
-        if (AdManager.Instance != null)
-        {
-            AdManager.Instance.ShowRewardedAd((success) => {
-                if (success)
-                {
-                    // Double the coins
-                    int coinsEarned = scoreManager.GetCurrentScore() / 100;
-                    int bonusCoins = coinsEarned;
-                    
-                    // Update display
-                    if (coinsEarnedText != null)
-                        coinsEarnedText.text = $"Coins Earned: {coinsEarned * 2} (Doubled!)";
-                    
-                    // TODO: Add coins to player's currency system
-                    PlayerPrefs.SetInt("TotalCoins", PlayerPrefs.GetInt("TotalCoins", 0) + bonusCoins);
-                    PlayerPrefs.Save();
-                    
-                    // Disable button after use
-                    if (doubleCoinsButton != null)
-                        doubleCoinsButton.gameObject.SetActive(false);
-                }
-            });
-        }
-    }
 }

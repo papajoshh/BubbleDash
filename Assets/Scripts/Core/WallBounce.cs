@@ -10,7 +10,7 @@ public class WallBounce : MonoBehaviour
     void OnCollisionEnter2D(Collision2D collision)
     {
         // Check if it's a bubble
-        Bubble bubble = collision.gameObject.GetComponent<Bubble>();
+        ShootingBubble bubble = collision.gameObject.GetComponent<ShootingBubble>();
         if (bubble == null) return;
         
         // Get the bubble's Rigidbody2D

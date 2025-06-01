@@ -388,5 +388,7 @@ public class UpgradeSystem : MonoBehaviour
         
         PlayerPrefs.DeleteKey("CoinMagnetBonus");
         PlayerPrefs.DeleteKey("StartingCombo");
+        PlayerPrefs.DeleteKey("HeadStartBonus");
+        PlayerPrefs.DeleteKey("LuckyCoinsBonus");
     }
 }

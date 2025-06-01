@@ -166,7 +166,7 @@ public class GameManager : MonoBehaviour
         
         currentState = GameState.GameOver;
         
-        // Stop player
+        // Stop player but don't reset position yet
         if (player != null)
         {
             player.Die();
@@ -179,7 +179,6 @@ public class GameManager : MonoBehaviour
         }
         
         OnGameOver?.Invoke();
-        Debug.Log("Game Over!");
     }
     
     public void RestartGame()
@@ -188,6 +187,55 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         
         // Reset all systems
+        ResetAllSystems();
+        
+        // Apply starting upgrades each game restart
+        if (UpgradeSystem.Instance != null)
+            UpgradeSystem.Instance.ApplyStartingUpgrades();
+        
+        // Start timer for roguelite mode
+        if (TimerManager.Instance != null)
+        {
+            TimerManager.Instance.StartTimer();
+        }
+        
+        OnGameRestart?.Invoke();
+    }
+    
+    // New: Game Over specifically triggered by timer expiring
+    public void TriggerGameOverTimer()
+    {
+        if (currentState == GameState.GameOver) return;
+        
+        currentState = GameState.GameOver;
+        
+        // Stop player but don't reset position yet
+        if (player != null)
+        {
+            player.Die();
+        }
+        
+        // Save high score if applicable
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.SaveHighScore();
+        }
+        
+        OnGameOverTimer?.Invoke();
+    }
+    
+    public void GoToMainMenu()
+    {
+        currentState = GameState.Menu;
+        Time.timeScale = 1f;
+        
+        // Reset all systems for clean menu state
+        ResetAllSystems();
+    }
+    
+    void ResetAllSystems()
+    {
+        // Reset all systems (extracted from RestartGame for reuse)
         if (player != null)
         {
             player.Restart();
@@ -203,10 +251,6 @@ public class GameManager : MonoBehaviour
             ScoreManager.Instance.ResetScore();
         }
         
-        // Apply starting upgrades each game restart
-        if (UpgradeSystem.Instance != null)
-            UpgradeSystem.Instance.ApplyStartingUpgrades();
-        
         // Reset camera position
         CameraFollow cameraFollow = FindObjectOfType<CameraFollow>();
         if (cameraFollow != null)
@@ -214,42 +258,34 @@ public class GameManager : MonoBehaviour
             cameraFollow.SnapToTarget();
         }
         
-        // Restart timer for roguelite mode
+        // Reset all parallax background systems
+        ParallaxBackground[] parallaxBackgrounds = FindObjectsOfType<ParallaxBackground>();
+        foreach (var parallax in parallaxBackgrounds)
+        {
+            parallax.ResetPosition();
+        }
+        
+        ParallaxSeamless[] parallaxSeamless = FindObjectsOfType<ParallaxSeamless>();
+        foreach (var parallax in parallaxSeamless)
+        {
+            parallax.ResetPosition();
+        }
+        
+        FollowCamera[] followCameras = FindObjectsOfType<FollowCamera>();
+        foreach (var followCam in followCameras)
+        {
+            followCam.ResetPosition();
+        }
+        
+        // Reset timer
         if (TimerManager.Instance != null)
         {
-            TimerManager.Instance.StartTimer();
+            TimerManager.Instance.ResetTimer();
         }
-        
-        OnGameRestart?.Invoke();
-        Debug.Log("Game Restarted!");
-    }
-    
-    // New: Game Over specifically triggered by timer expiring
-    public void TriggerGameOverTimer()
-    {
-        if (currentState == GameState.GameOver) return;
-        
-        currentState = GameState.GameOver;
-        
-        // Stop player
-        if (player != null)
-        {
-            player.Die();
-        }
-        
-        // Save high score if applicable
-        if (ScoreManager.Instance != null)
-        {
-            ScoreManager.Instance.SaveHighScore();
-        }
-        
-        OnGameOverTimer?.Invoke();
-        Debug.Log("Game Over - Timer Expired!");
     }
     
     public void QuitGame()
     {
-        Debug.Log("Quitting Game...");
         Application.Quit();
     }
     

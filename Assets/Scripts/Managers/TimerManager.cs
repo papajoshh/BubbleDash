@@ -6,13 +6,13 @@ public class TimerManager : MonoBehaviour
     public static TimerManager Instance { get; private set; }
     
     [Header("Timer Settings")]
-    public float baseDurationSeconds = 180f; // 3 minutes base
+    public float baseDurationSeconds = 30f; // 30 seconds base for testing
     public bool enableTimer = true;
     public bool pauseTimerOnGamePause = true;
     
     [Header("Warning Thresholds")]
-    public float urgentWarningTime = 30f; // Last 30 seconds
-    public float warningTime = 60f; // Last minute
+    public float urgentWarningTime = 10f; // Last 10 seconds
+    public float warningTime = 15f; // Last 15 seconds
     
     [Header("Timer Extensions")]
     public float timeExtensionBonus = 0f; // From upgrades
@@ -94,7 +94,6 @@ public class TimerManager : MonoBehaviour
         timeExtensionBonus = headStartBonus;
         totalDuration += timeExtensionBonus;
         
-        Debug.Log($"Timer Duration: {totalDuration}s (Base: {baseDurationSeconds}s + Bonus: {timeExtensionBonus}s)");
     }
     
     public void StartTimer()
@@ -108,14 +107,12 @@ public class TimerManager : MonoBehaviour
         hasWarned = false;
         hasUrgentWarned = false;
         
-        Debug.Log($"Timer started: {totalDuration} seconds");
         OnTimerChanged?.Invoke(currentTime);
     }
     
     public void PauseTimer()
     {
         isRunning = false;
-        Debug.Log("Timer paused");
     }
     
     public void ResumeTimer()
@@ -123,8 +120,7 @@ public class TimerManager : MonoBehaviour
         if (!isExpired)
         {
             isRunning = true;
-            Debug.Log("Timer resumed");
-        }
+            }
     }
     
     public void StopTimer()
@@ -149,14 +145,12 @@ public class TimerManager : MonoBehaviour
         {
             hasUrgentWarned = true;
             OnTimerUrgent?.Invoke();
-            Debug.Log("URGENT: Timer critical!");
         }
         // Warning (last minute)
         else if (!hasWarned && currentTime <= warningTime)
         {
             hasWarned = true;
             OnTimerWarning?.Invoke();
-            Debug.Log("WARNING: Timer running low!");
         }
     }
     
@@ -166,7 +160,6 @@ public class TimerManager : MonoBehaviour
         isRunning = false;
         currentTime = 0f;
         
-        Debug.Log("TIMER EXPIRED - Game Over!");
         OnTimerExpired?.Invoke();
         
         // Trigger game over

@@ -64,13 +64,16 @@ public class MomentumSystem : MonoBehaviour
         
         UpdatePlayerSpeed();
         
-        // Debug feedback
-        Debug.Log($"Consecutive hits: {consecutiveHits}, Speed: {CurrentSpeed:F1}x");
-        
-        // Notify ScoreManager if exists
+        // Notify other systems
         if (ScoreManager.Instance != null)
         {
             ScoreManager.Instance.OnBubbleHit(consecutiveHits);
+        }
+        
+        // Update run statistics
+        if (RunStatsManager.Instance != null)
+        {
+            RunStatsManager.Instance.OnComboAchieved(consecutiveHits);
         }
     }
     
@@ -81,7 +84,6 @@ public class MomentumSystem : MonoBehaviour
             ResetMomentum();
         }
         
-        Debug.Log("Bubble missed! Momentum reset.");
     }
     
     public void OnBubbleShot()
@@ -95,7 +97,6 @@ public class MomentumSystem : MonoBehaviour
         if (Time.time - lastHitTime > momentumDecayTime && consecutiveHits > 0)
         {
             ResetMomentum();
-            Debug.Log("Momentum decayed due to inactivity");
         }
     }
     

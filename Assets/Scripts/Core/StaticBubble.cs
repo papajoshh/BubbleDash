@@ -1,9 +1,15 @@
 using UnityEngine;
 
-public class StaticBubble : MonoBehaviour
+public class StaticBubble : MonoBehaviour, IBubble
 {
     [Header("Bubble Properties")]
     public BubbleColor bubbleColor = BubbleColor.Red;
+    
+    // IBubble implementation
+    public BubbleColor GetBubbleColor()
+    {
+        return bubbleColor;
+    }
     public bool randomizeColor = true; // Randomize color on start
     
     [Header("Visual")]
@@ -124,77 +130,7 @@ public class StaticBubble : MonoBehaviour
             return;
         }
         
-        // Check if hit by a projectile bubble
-        Bubble projectileBubble = collision.gameObject.GetComponent<Bubble>();
-        SimpleBubbleCollision simpleBubble = collision.gameObject.GetComponent<SimpleBubbleCollision>();
-        
-        if (projectileBubble != null || simpleBubble != null)
-        {
-            // Get the color of the projectile
-            BubbleColor projectileColor = BubbleColor.Red;
-            if (projectileBubble != null)
-                projectileColor = projectileBubble.bubbleColor;
-            else if (simpleBubble != null)
-            {
-                Bubble b = simpleBubble.GetComponent<Bubble>();
-                if (b != null) projectileColor = b.bubbleColor;
-            }
-            
-            // Check if same color
-            if (projectileColor == bubbleColor)
-            {
-                // Create explosion effect
-                Vector3 explosionPos = collision.contacts[0].point;
-                
-                // Visual effects
-                if (SimpleEffects.Instance != null)
-                {
-                    // Get the actual bubble color
-                    Color effectColor = Color.white;
-                    switch (bubbleColor)
-                    {
-                        case BubbleColor.Red:
-                            effectColor = Color.red;
-                            break;
-                        case BubbleColor.Blue:
-                            effectColor = new Color(0.2f, 0.4f, 1f);
-                            break;
-                        case BubbleColor.Green:
-                            effectColor = new Color(0.2f, 0.8f, 0.2f);
-                            break;
-                        case BubbleColor.Yellow:
-                            effectColor = new Color(1f, 0.9f, 0.2f);
-                            break;
-                    }
-                    SimpleEffects.Instance.PlayBubblePop(explosionPos, effectColor);
-                    SimpleEffects.Instance.ShowComboText(explosionPos, 1);
-                }
-                
-                // Sound effect
-                if (SimpleSoundManager.Instance != null)
-                {
-                    SimpleSoundManager.Instance.PlayBubblePop();
-                }
-                
-                // Update score
-                if (ScoreManager.Instance != null)
-                {
-                    ScoreManager.Instance.OnBubbleHit(1);
-                }
-                
-                // Update momentum
-                MomentumSystem momentum = FindObjectOfType<MomentumSystem>();
-                if (momentum != null)
-                {
-                    momentum.OnBubbleHit();
-                }
-                
-                // Destroy the projectile
-                Destroy(collision.gameObject);
-                
-                // Destroy this static bubble
-                Destroy(gameObject);
-            }
-        }
+        // All bubble-to-bubble collision is now handled by SimpleBubbleCollision
+        // on the shooting bubble, so we don't need to handle it here
     }
 }
