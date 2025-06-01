@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using DG.Tweening;
 
@@ -26,7 +27,8 @@ public class SimpleEffects : MonoBehaviour
     public float flashDuration = 0.1f;
     
     private Camera mainCamera;
-    private Vector3 originalCameraPosition;
+    private CameraFollow cameraFollow;
+    private Coroutine currentShakeCoroutine;
     
     void Awake()
     {
@@ -45,7 +47,9 @@ public class SimpleEffects : MonoBehaviour
     {
         mainCamera = Camera.main;
         if (mainCamera != null)
-            originalCameraPosition = mainCamera.transform.position;
+        {
+            cameraFollow = mainCamera.GetComponent<CameraFollow>();
+        }
             
         // Create default combo text prefab if not assigned
         if (comboTextPrefab == null)
@@ -152,17 +156,48 @@ public class SimpleEffects : MonoBehaviour
         if (intensity < 0) intensity = shakeIntensity;
         if (duration < 0) duration = shakeDuration;
         
-        // Kill any existing shake
-        mainCamera.transform.DOKill();
+        // Stop any existing shake
+        if (currentShakeCoroutine != null)
+        {
+            StopCoroutine(currentShakeCoroutine);
+            currentShakeCoroutine = null;
+        }
         
-        // Reset to original position first
-        mainCamera.transform.position = originalCameraPosition;
+        // If we have CameraFollow, temporarily disable it during shake
+        if (cameraFollow != null)
+        {
+            currentShakeCoroutine = StartCoroutine(ShakeWithCameraFollow(intensity, duration));
+        }
+        else
+        {
+            // Fallback to simple shake
+            mainCamera.transform.DOKill();
+            mainCamera.transform.DOShakePosition(duration, intensity, 10, 90, false, true);
+        }
+    }
+    
+    IEnumerator ShakeWithCameraFollow(float intensity, float duration)
+    {
+        // Temporarily disable camera follow
+        bool wasFollowingX = cameraFollow.followX;
+        bool wasFollowingY = cameraFollow.followY;
+        cameraFollow.followX = false;
+        cameraFollow.followY = false;
         
-        // Shake using DOTween
-        mainCamera.transform.DOShakePosition(duration, intensity, 10, 90, false, true)
-            .OnComplete(() => {
-                mainCamera.transform.position = originalCameraPosition;
-            });
+        // Do the shake
+        mainCamera.transform.DOShakePosition(duration, intensity, 10, 90, false, true);
+        
+        // Wait for shake to complete
+        yield return new WaitForSeconds(duration);
+        
+        // Re-enable camera follow
+        cameraFollow.followX = wasFollowingX;
+        cameraFollow.followY = wasFollowingY;
+        
+        // Snap back to correct position
+        cameraFollow.SnapToTarget();
+        
+        currentShakeCoroutine = null;
     }
     
     // Flash sprite color

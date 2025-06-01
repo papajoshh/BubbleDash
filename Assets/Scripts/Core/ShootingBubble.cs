@@ -82,7 +82,6 @@ public class ShootingBubble : MonoBehaviour, IBubble
         if (bubbleRenderer == null) return;
         
         Sprite spriteToUse = null;
-        Color colorToUse = Color.white;
         
         // Normal color-based bubbles (coin bubbles are handled by CoinBubble class)
         switch (bubbleColor)
@@ -101,15 +100,16 @@ public class ShootingBubble : MonoBehaviour, IBubble
                     break;
             }
             
-        colorToUse = GetColorFromEnum(bubbleColor);
-        
         if (spriteToUse != null)
         {
             bubbleRenderer.sprite = spriteToUse;
+            bubbleRenderer.color = Color.white; // No tint, use sprite's original colors
         }
-        
-        // Apply color tint
-        bubbleRenderer.color = colorToUse;
+        else
+        {
+            // Fallback: if no sprite assigned, use color tint
+            bubbleRenderer.color = GetColorFromEnum(bubbleColor);
+        }
     }
     
     Color GetColorFromEnum(BubbleColor color)

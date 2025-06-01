@@ -330,4 +330,9 @@ public class SimpleSoundManager : MonoBehaviour
             GameManager.Instance.OnGameResume -= ResumeMusic;
         }
     }
+
+    public void PlayTimerExpired()
+    {
+        //TODO: Implement timer expired sound
+    }
 }

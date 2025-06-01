@@ -291,7 +291,7 @@ public class TimerUI : MonoBehaviour
         // Play expired sound
         if (enableTimerSounds && SimpleSoundManager.Instance != null)
         {
-            // SimpleSoundManager.Instance.PlayTimerExpired();
+            SimpleSoundManager.Instance.PlayTimerExpired();
         }
     }
     
