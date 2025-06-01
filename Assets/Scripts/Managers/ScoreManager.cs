@@ -141,9 +141,12 @@ public class ScoreManager : MonoBehaviour
     }
     
     public int GetCurrentScore() => currentScore;
+    public int GetScore() => currentScore; // Alias for GameOverUI
     public int GetHighScore() => highScore;
     public int GetDistanceScore() => distanceScore;
     public int GetBubbleScore() => bubbleScore;
+    public bool IsNewHighScore() => currentScore > highScore;
+    public int GetDistance() => Mathf.FloorToInt(GetDistanceTraveled());
     
     // Method to add bonus score (like from coins)
     public void AddBonusScore(int points)

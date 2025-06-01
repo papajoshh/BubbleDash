@@ -8,6 +8,7 @@ public class CoinSystem : MonoBehaviour
     
     public int currentCoins { get; private set; }
     public int totalCoinsEarned { get; private set; }
+    private int coinsThisRun = 0;
     
     [Header("Coin Spawning")]
     public GameObject coinPrefab; // Legacy floating coins
@@ -52,6 +53,8 @@ public class CoinSystem : MonoBehaviour
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnGameOver += SaveCoins;
+            GameManager.Instance.OnGameStart += ResetRunCoins;
+            GameManager.Instance.OnGameRestart += ResetRunCoins;
         }
     }
     
@@ -61,6 +64,7 @@ public class CoinSystem : MonoBehaviour
         
         currentCoins += amount;
         totalCoinsEarned += amount;
+        coinsThisRun += amount;
         
         OnCoinsChanged?.Invoke(currentCoins);
         OnCoinsCollected?.Invoke(amount);
@@ -201,6 +205,8 @@ public class CoinSystem : MonoBehaviour
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnGameOver -= SaveCoins;
+            GameManager.Instance.OnGameStart -= ResetRunCoins;
+            GameManager.Instance.OnGameRestart -= ResetRunCoins;
         }
     }
     
@@ -220,6 +226,13 @@ public class CoinSystem : MonoBehaviour
     public int GetCurrentCoins() => currentCoins;
     public int GetTotalEarned() => totalCoinsEarned;
     public bool CanAfford(int amount) => currentCoins >= amount;
+    public int GetCoinsThisRun() => coinsThisRun;
+    
+    // Reset coins for new run
+    public void ResetRunCoins()
+    {
+        coinsThisRun = 0;
+    }
     
     // Helper method to check if a position is clear of other objects
     bool IsPositionClear(Vector3 position, float checkRadius = 0.4f)

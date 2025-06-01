@@ -296,4 +296,30 @@ public class SimpleEffects : MonoBehaviour
         
         return Sprite.Create(tex, new Rect(0, 0, 32, 32), Vector2.one * 0.5f);
     }
+
+    public void PlayShieldActivation()
+    {
+        // Create shield activation effect
+        PlayerController player = FindObjectOfType<PlayerController>();
+        Vector3 playerPos = player != null ? player.transform.position : Vector3.zero;
+        
+        GameObject shieldEffect = new GameObject("ShieldActivation");
+        shieldEffect.transform.position = playerPos;
+        
+        // Add visual effect - simple expanding circle
+        SpriteRenderer sr = shieldEffect.AddComponent<SpriteRenderer>();
+        sr.sprite = GetCircleSprite();
+        sr.color = new Color(0, 1, 1, 0.5f); // Cyan semi-transparent
+        sr.sortingOrder = 10;
+        
+        // Animate shield activation
+        shieldEffect.transform.localScale = Vector3.zero;
+        shieldEffect.transform.DOScale(Vector3.one * 2f, 0.3f)
+            .SetEase(Ease.OutCirc)
+            .OnComplete(() => {
+                sr.DOFade(0f, 0.2f).OnComplete(() => Destroy(shieldEffect));
+            });
+        
+        Debug.Log("Shield activation effect played");
+    }
 }

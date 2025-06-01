@@ -64,6 +64,18 @@ public class MomentumSystem : MonoBehaviour
         
         UpdatePlayerSpeed();
         
+        // NEW: Notify Energy and Objective systems
+        if (EnergyManager.Instance != null)
+        {
+            EnergyManager.Instance.OnBubbleHit();
+        }
+        
+        if (ObjectiveManager.Instance != null)
+        {
+            ObjectiveManager.Instance.OnBubbleHit(BubbleColor.Red); // Default color for now
+            ObjectiveManager.Instance.OnMomentumChanged(consecutiveHits);
+        }
+        
         // Notify other systems
         if (ScoreManager.Instance != null)
         {
@@ -79,11 +91,16 @@ public class MomentumSystem : MonoBehaviour
     
     public void OnBubbleMiss()
     {
+        // NEW: Notify Objective system
+        if (ObjectiveManager.Instance != null)
+        {
+            ObjectiveManager.Instance.OnBubbleMiss();
+        }
+        
         if (resetOnMiss)
         {
             ResetMomentum();
         }
-        
     }
     
     public void OnBubbleShot()

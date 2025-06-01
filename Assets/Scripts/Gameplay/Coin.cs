@@ -130,6 +130,17 @@ public class Coin : MonoBehaviour
             Debug.LogError("CoinSystem.Instance is null!");
         }
         
+        // NEW: Notify Energy and Objective systems
+        if (EnergyManager.Instance != null)
+        {
+            EnergyManager.Instance.OnCoinCollected();
+        }
+        
+        if (ObjectiveManager.Instance != null)
+        {
+            ObjectiveManager.Instance.OnCoinCollected();
+        }
+        
         // Visual effect
         if (SimpleEffects.Instance != null)
         {

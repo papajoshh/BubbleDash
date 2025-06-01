@@ -117,11 +117,7 @@ public class GameManager : MonoBehaviour
         if (UpgradeSystem.Instance != null)
             UpgradeSystem.Instance.ApplyStartingUpgrades();
         
-        // Start timer for roguelite mode
-        if (TimerManager.Instance != null)
-        {
-            TimerManager.Instance.StartTimer();
-        }
+        // Timer system removed - to be implemented later
         
         OnGameStart?.Invoke();
         Debug.Log("Game Started!");
@@ -193,11 +189,7 @@ public class GameManager : MonoBehaviour
         if (UpgradeSystem.Instance != null)
             UpgradeSystem.Instance.ApplyStartingUpgrades();
         
-        // Start timer for roguelite mode
-        if (TimerManager.Instance != null)
-        {
-            TimerManager.Instance.StartTimer();
-        }
+        // Timer system removed - to be implemented later
         
         OnGameRestart?.Invoke();
     }
@@ -283,11 +275,7 @@ public class GameManager : MonoBehaviour
             followCam.ResetPosition();
         }
         
-        // Reset timer
-        if (TimerManager.Instance != null)
-        {
-            TimerManager.Instance.ResetTimer();
-        }
+        // Timer reset removed - to be implemented later
     }
     
     public void QuitGame()

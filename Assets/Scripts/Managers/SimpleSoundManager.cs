@@ -127,6 +127,26 @@ public class SimpleSoundManager : MonoBehaviour
                 frequency = 200f;
                 duration = 0.3f;
                 break;
+            case "wave_transition":
+                frequency = 600f;
+                duration = 0.4f;
+                break;
+            case "objective_complete":
+                frequency = 1000f;
+                duration = 0.2f;
+                break;
+            case "objective_failed":
+                frequency = 250f;
+                duration = 0.25f;
+                break;
+            case "energy_low":
+                frequency = 400f;
+                duration = 0.3f;
+                break;
+            case "shield_activation":
+                frequency = 1400f;
+                duration = 0.15f;
+                break;
             default:
                 frequency = 500f;
                 duration = 0.1f;
@@ -334,5 +354,31 @@ public class SimpleSoundManager : MonoBehaviour
     public void PlayTimerExpired()
     {
         //TODO: Implement timer expired sound
+    }
+    
+    // New methods for Energy System
+    public void PlayWaveTransition()
+    {
+        PlaySound(null, 1f, "wave_transition");
+    }
+    
+    public void PlayObjectiveComplete()
+    {
+        PlaySound(comboSound, 1f, "objective_complete"); // Reuse combo sound or fallback to procedural
+    }
+    
+    public void PlayObjectiveFailed()
+    {
+        PlaySound(null, 0.8f, "objective_failed");
+    }
+    
+    public void PlayEnergyLow()
+    {
+        PlaySound(null, 0.7f, "energy_low");
+    }
+    
+    public void PlayShieldActivation()
+    {
+        PlaySound(null, 0.9f, "shield_activation");
     }
 }
